@@ -34,8 +34,8 @@ export function datingPostInsertSql(r: DatingPostRow): string {
 
 export function hotVideoInsertSql(r: HotVideoRow): string {
   return (
-    `INSERT INTO videos (source, source_id, title, cover_url, video_url, author_name, author_id, likes, publish_time, collected_time, created_at, updated_at) VALUES (` +
-    `${sqlStr(r.source)}, ${sqlStr(r.source_id)}, ${sqlStr(r.title)}, ${sqlStr(r.cover_url)}, ${sqlStr(r.video_url)}, ${sqlStr(r.author_name)}, ${sqlStr(r.author_id)}, ${sqlNum(r.likes)}, ${sqlNum(r.publish_time)}, ${sqlNum(r.collected_time)}, ${sqlNum(r.created_at)}, ${sqlNum(r.updated_at)})` +
-    ` ON CONFLICT(source, source_id) DO UPDATE SET title=excluded.title, cover_url=excluded.cover_url, video_url=excluded.video_url, author_name=excluded.author_name, author_id=excluded.author_id, likes=excluded.likes, publish_time=excluded.publish_time, collected_time=excluded.collected_time, updated_at=excluded.updated_at;`
+    `INSERT INTO videos (source, source_id, title, cover_url, video_url, author_name, author_id, author_avatar_url, likes, collects, publish_time, collected_time, created_at, updated_at) VALUES (` +
+    `${sqlStr(r.source)}, ${sqlStr(r.source_id)}, ${sqlStr(r.title)}, ${sqlStr(r.cover_url)}, ${sqlStr(r.video_url)}, ${sqlStr(r.author_name)}, ${sqlStr(r.author_id)}, ${sqlStr(r.author_avatar_url)}, ${sqlNum(r.likes)}, ${sqlNum(r.collects)}, ${sqlNum(r.publish_time)}, ${sqlNum(r.collected_time)}, ${sqlNum(r.created_at)}, ${sqlNum(r.updated_at)})` +
+    ` ON CONFLICT(source, source_id) DO UPDATE SET title=excluded.title, cover_url=excluded.cover_url, video_url=excluded.video_url, author_name=excluded.author_name, author_id=excluded.author_id, author_avatar_url=excluded.author_avatar_url, likes=excluded.likes, collects=excluded.collects, publish_time=excluded.publish_time, collected_time=excluded.collected_time, updated_at=excluded.updated_at;`
   );
 }

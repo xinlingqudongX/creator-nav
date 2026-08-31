@@ -138,28 +138,28 @@ export interface HotVideoRow {
   video_url: string;
   author_name: string | null;
   author_id: string;
+  author_avatar_url: string | null;
   likes: number;
+  collects: number;
   publish_time: number;
   collected_time: number;
   created_at: number;
   updated_at: number;
 }
 
-export function postToHotVideo(
-  p: UserPostRow,
-  coverUrl: string | null,
-  nowSec: number,
-): HotVideoRow {
+export function postToHotVideo(p: UserPostRow, nowSec: number): HotVideoRow {
   const collected = toSeconds(p.created_at) ?? nowSec;
   return {
     source: SOURCE,
     source_id: p.id,
     title: (p.desc ?? '').trim() || null,
-    cover_url: coverUrl,
+    cover_url: p.cover_url ?? null,
     video_url: `https://www.douyin.com/video/${p.id}`,
     author_name: p.author_nickname ?? null,
     author_id: p.author_uid,
+    author_avatar_url: p.author_avatar_url ?? null,
     likes: p.digg_count ?? 0,
+    collects: p.collect_count ?? 0,
     publish_time: toSeconds(p.create_time) ?? 0,
     collected_time: collected,
     created_at: collected,

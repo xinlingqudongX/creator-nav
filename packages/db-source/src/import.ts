@@ -132,22 +132,21 @@ export async function syncHotVideo(conn: RedstringConnection, flags: SyncFlags):
   let rows = all;
   if (flags.minLikes !== undefined) rows = rows.filter((p) => (p.digg_count ?? 0) >= flags.minLikes!);
   if (flags.minCollects !== undefined) rows = rows.filter((p) => (p.collect_count ?? 0) >= flags.minCollects!);
+  // 排序：收藏数主、点赞数次、发布时间再次；确保 --limit 保留的是最"值收藏"的作品
+  rows = rows.slice().sort((a, b) => {
+    const cd = (b.collect_count ?? 0) - (a.collect_count ?? 0);
+    if (cd !== 0) return cd;
+    const dd = (b.digg_count ?? 0) - (a.digg_count ?? 0);
+    if (dd !== 0) return dd;
+    return (b.create_time ?? 0) - (a.create_time ?? 0);
+  });
   if (flags.limit !== undefined) rows = rows.slice(0, flags.limit);
 
-  const covers = new Map<string, string | null>();
-  if (conn.tables.has('videos')) {
-    const vrows = (await conn.ds.query('SELECT post_id, cover_url FROM videos')) as Array<{
-      post_id: string | null;
-      cover_url: string | null;
-    }>;
-    for (const v of vrows) {
-      if (v.post_id) covers.set(v.post_id, v.cover_url);
-    }
-  }
-  const videos = rows.map((p) => postToHotVideo(p, covers.get(p.id) ?? null, nowSec));
-  const withCover = videos.filter((v) => v.cover_url !== null).length;
+  const videos = rows.map((p) => postToHotVideo(p, nowSec));
 
-  console.log(`\n[hot] user_posts 总数 ${all.length}，筛选后 ${videos.length} 条，有封面 ${withCover} 条`);
+  console.log(
+    `\n[hot] user_posts 总数 ${all.length}，筛选后 ${videos.length} 条（按收藏数降序，含 cover_url / author_avatar_url）`,
+  );
 
   const result: SiteResult = {
     site: 'hot',

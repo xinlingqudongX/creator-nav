@@ -61,6 +61,8 @@ export interface UserPostRow {
   author_uid: string;
   author_sec_uid: string;
   author_nickname: string | null;
+  author_avatar_url: string | null;
+  cover_url: string | null;
   digg_count: number;
   comment_count: number;
   collect_count: number;
@@ -79,6 +81,8 @@ export const UserPostSchema = new EntitySchema<UserPostRow>({
     author_uid: { type: 'varchar' },
     author_sec_uid: { type: 'varchar' },
     author_nickname: { type: 'varchar', nullable: true },
+    author_avatar_url: { type: 'text', nullable: true },
+    cover_url: { type: 'text', nullable: true },
     digg_count: { type: 'integer' },
     comment_count: { type: 'integer' },
     collect_count: { type: 'integer' },
@@ -87,18 +91,3 @@ export const UserPostSchema = new EntitySchema<UserPostRow>({
   },
 });
 
-export interface VideoRow {
-  id: string;
-  post_id: string | null;
-  cover_url: string | null;
-}
-
-export const VideoSchema = new EntitySchema<VideoRow>({
-  name: 'RedstringVideo',
-  tableName: 'videos',
-  columns: {
-    id: { type: 'varchar', primary: true },
-    post_id: { type: 'varchar', nullable: true },
-    cover_url: { type: 'text', nullable: true },
-  },
-});

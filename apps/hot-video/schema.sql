@@ -14,8 +14,10 @@ CREATE TABLE IF NOT EXISTS videos (
 
     author_name   TEXT,
     author_id     TEXT,
+    author_avatar_url TEXT,
 
     likes         INTEGER DEFAULT 0,
+    collects      INTEGER DEFAULT 0,
     publish_time  INTEGER,
 
     collected_time INTEGER,
@@ -28,6 +30,9 @@ CREATE TABLE IF NOT EXISTS videos (
 
 CREATE INDEX IF NOT EXISTS idx_videos_likes
     ON videos(likes DESC);
+
+CREATE INDEX IF NOT EXISTS idx_videos_collects
+    ON videos(collects DESC);
 
 CREATE INDEX IF NOT EXISTS idx_videos_publish_time
     ON videos(publish_time DESC);
