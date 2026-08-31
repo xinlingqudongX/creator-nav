@@ -13,11 +13,11 @@ const valid = /^\d{4}$/.test(yearParam) && /^\d{1,2}$/.test(monthParam) && month
 if (!valid) Astro.response.status = 404;
 
 const yearMonth = valid ? `${year}-${String(month).padStart(2, '0')}` : '';
-const videos = valid ? await getVideos({ yearMonth, order: 'likes', limit: 200 }) : [];
+const videos = valid ? await getVideos({ yearMonth, order: 'collects', limit: 200 }) : [];
 
 const title = valid ? `${year}年${month}月热门短视频 - Hot Video` : '页面不存在 - Hot Video';
 const description = valid
-  ? `收录 ${year}年${month}月 发布的高赞短视频，按点赞数排序。点击跳转原平台观看。`
+  ? `收录 ${year}年${month}月 发布的高收藏短视频，按收藏数排序。点击跳转原平台观看。`
   : '页面不存在';
 ---
 

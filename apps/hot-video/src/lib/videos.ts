@@ -2,22 +2,30 @@ import type { Video } from './types';
 import { TIERS } from './types';
 import type { D1Database } from '@creator-nav/ui/lib/d1';
 import { getDb } from '@creator-nav/ui/lib/d1';
-// 本地回退数据（PRD §21：JSON 仅作数据交换格式；此处为无 D1 绑定时的开发预览数据源）
-import fallbackData from '../data/videos.json';
+// 本地回退数据：`src/data/videos.json` 已移除，数据以 redstring `user_posts` 同步后的 D1 为准。
+const fallbackData: Video[] = [];
 
 export interface VideoQuery {
-  minLikes?: number;
+  minCollects?: number;
+  maxCollects?: number; // exclusive upper bound on collects（首页 1K–10K 区间用）
   after?: number; // publish_time >= after (秒)
   before?: number; // publish_time < before (秒)
   year?: number;
   yearMonth?: string; // 'YYYY-MM'
   excludeId?: number;
-  order?: 'likes' | 'publish_time';
+  order?: 'collects' | 'likes' | 'publish_time';
   limit?: number;
   // 游标分页（PRD §23.1）：禁止使用 OFFSET。
-  // 编码格式 `${score}:${id}`，score 为当前排序字段值（likes 或 publish_time），id 为视频主键。
+  // 编码格式 `${score}:${id}`，score 为当前排序字段值（collects / likes / publish_time），id 为视频主键。
   // 降序排列下，下一页取「(score, id) 小于游标」的记录，避免 OFFSET 在大数据量下的漂移与性能问题。
   cursor?: string;
+}
+
+// 排序字段 → SQL / JS 列名。默认按收藏数排序（"值收藏"是本站主排序口径）。
+function orderColOf(order: VideoQuery['order']): 'collects' | 'likes' | 'publish_time' {
+  if (order === 'likes') return 'likes';
+  if (order === 'publish_time') return 'publish_time';
+  return 'collects';
 }
 
 export interface VideoStats {
@@ -48,7 +56,8 @@ function decodeCursor(cursor?: string): { score: number; id: number } | null {
 // 本地 JSON 回退：按条件过滤/排序
 function queryLocal(opts: VideoQuery): Video[] {
   let list = (fallbackData as unknown as Video[]).slice();
-  if (opts.minLikes != null) list = list.filter((v) => (v.likes ?? 0) >= opts.minLikes!);
+  if (opts.minCollects != null) list = list.filter((v) => (v.collects ?? 0) >= opts.minCollects!);
+  if (opts.maxCollects != null) list = list.filter((v) => (v.collects ?? 0) < opts.maxCollects!);
   if (opts.after != null) list = list.filter((v) => (v.publish_time ?? 0) >= opts.after!);
   if (opts.before != null) list = list.filter((v) => (v.publish_time ?? 0) < opts.before!);
   if (opts.year != null)
@@ -63,16 +72,15 @@ function queryLocal(opts: VideoQuery): Video[] {
   if (opts.excludeId != null) list = list.filter((v) => v.id !== opts.excludeId);
   // 游标过滤（降序）：(score, id) < (cursor.score, cursor.id)
   const cur = decodeCursor(opts.cursor);
+  const orderCol = orderColOf(opts.order);
   if (cur) {
-    const col = opts.order === 'publish_time' ? 'publish_time' : 'likes';
     list = list.filter((v) => {
-      const s = (v[col] ?? 0) as number;
+      const s = (v[orderCol] ?? 0) as number;
       return s < cur.score || (s === cur.score && v.id < cur.id);
     });
   }
 
-  const orderCol = opts.order === 'publish_time' ? 'publish_time' : 'likes';
-  list.sort((a, b) => (b[orderCol] ?? 0) - (a[orderCol] ?? 0));
+  list.sort((a, b) => ((b[orderCol] ?? 0) as number) - ((a[orderCol] ?? 0) as number));
   if (opts.limit != null) list = list.slice(0, opts.limit);
   return list;
 }
@@ -81,9 +89,13 @@ function queryLocal(opts: VideoQuery): Video[] {
 async function queryD1(db: D1Database, opts: VideoQuery): Promise<Video[]> {
   const conds: string[] = [];
   const params: unknown[] = [];
-  if (opts.minLikes != null) {
-    conds.push('likes >= ?');
-    params.push(opts.minLikes);
+  if (opts.minCollects != null) {
+    conds.push('collects >= ?');
+    params.push(opts.minCollects);
+  }
+  if (opts.maxCollects != null) {
+    conds.push('collects < ?');
+    params.push(opts.maxCollects);
   }
   if (opts.after != null) {
     conds.push('publish_time >= ?');
@@ -106,14 +118,13 @@ async function queryD1(db: D1Database, opts: VideoQuery): Promise<Video[]> {
     params.push(opts.excludeId);
   }
   // 游标分页：降序下 WHERE (col < score) OR (col = score AND id < id)
+  const orderCol = orderColOf(opts.order);
   const cur = decodeCursor(opts.cursor);
   if (cur) {
-    const col = opts.order === 'publish_time' ? 'publish_time' : 'likes';
-    conds.push(`((${col} < ?) OR (${col} = ? AND id < ?))`);
+    conds.push(`((${orderCol} < ?) OR (${orderCol} = ? AND id < ?))`);
     params.push(cur.score, cur.score, cur.id);
   }
   const where = conds.length ? 'WHERE ' + conds.join(' AND ') : '';
-  const orderCol = opts.order === 'publish_time' ? 'publish_time' : 'likes';
   const limit = opts.limit ?? 60;
   const sql = `SELECT * FROM videos ${where} ORDER BY ${orderCol} DESC, id DESC LIMIT ?`;
   const res = await db.prepare(sql).bind(...params, limit).all<Video>();
@@ -158,7 +169,7 @@ export async function getStats(): Promise<VideoStats> {
           key: t.key,
           label: t.label,
           min: t.min,
-          count: (await db.prepare('SELECT COUNT(*) AS c FROM videos WHERE likes >= ?').bind(t.min).first<{ c: number }>())?.c ?? 0,
+          count: (await db.prepare('SELECT COUNT(*) AS c FROM videos WHERE collects >= ?').bind(t.min).first<{ c: number }>())?.c ?? 0,
         }))
       );
       const todayNew = (await db.prepare('SELECT COUNT(*) AS c FROM videos WHERE created_at >= ?').bind(startOfToday).first<{ c: number }>())?.c ?? 0;
@@ -171,7 +182,7 @@ export async function getStats(): Promise<VideoStats> {
   const list = fallbackData as unknown as Video[];
   return {
     total: list.length,
-    byTier: TIERS.map((t) => ({ key: t.key, label: t.label, min: t.min, count: list.filter((v) => (v.likes ?? 0) >= t.min).length })),
+    byTier: TIERS.map((t) => ({ key: t.key, label: t.label, min: t.min, count: list.filter((v) => (v.collects ?? 0) >= t.min).length })),
     todayNew: list.filter((v) => (v.created_at ?? 0) >= startOfToday).length,
   };
 }

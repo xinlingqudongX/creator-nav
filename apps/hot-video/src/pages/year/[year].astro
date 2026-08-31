@@ -10,11 +10,11 @@ const valid = /^\d{4}$/.test(yearParam);
 
 if (!valid) Astro.response.status = 404;
 
-const videos = valid ? await getVideos({ year, order: 'likes', limit: 200 }) : [];
+const videos = valid ? await getVideos({ year, order: 'collects', limit: 200 }) : [];
 
 const title = valid ? `${year}年热门短视频 - Hot Video` : '页面不存在 - Hot Video';
 const description = valid
-  ? `收录 ${year} 年发布的高赞短视频，按点赞数排序，持续更新。点击跳转原平台观看。`
+  ? `收录 ${year} 年发布的高收藏短视频，按收藏数排序，持续更新。点击跳转原平台观看。`
   : '页面不存在';
 ---
 

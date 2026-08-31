@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import VideoGrid from '../../components/VideoGrid.astro';
 import { getVideoById, getVideos } from '../../lib/videos';
-import { formatLikes, formatDate } from '../../lib/format';
+import { formatCount, formatDate } from '../../lib/format';
 
 // 单视频页（PRD §7）：/video/:id
 const idParam = Astro.params.id ?? '';
@@ -13,12 +13,12 @@ const video = valid ? await getVideoById(id) : null;
 
 if (!video) Astro.response.status = 404;
 
-// 相关推荐：排除自身，按点赞降序取前 6（PRD §7.1）
-const related = video ? await getVideos({ excludeId: video.id, order: 'likes', limit: 6 }) : [];
+// 相关推荐：排除自身，按收藏数降序取前 6（PRD §7.1）
+const related = video ? await getVideos({ excludeId: video.id, order: 'collects', limit: 6 }) : [];
 
 const title = video ? `${video.title} - Hot Video` : '视频不存在 - Hot Video';
 const description = video
-  ? `${video.title}（作者：${video.author_name ?? '未知'}），点赞 ${formatLikes(video.likes)}。点击查看原视频。`
+  ? `${video.title}（作者：${video.author_name ?? '未知'}），收藏 ${formatCount(video.collects)}、点赞 ${formatCount(video.likes)}。点击查看原视频。`
   : '视频不存在';
 ---
 
@@ -32,8 +32,25 @@ const description = video
         <div>
           <h1 class="detail__title">{video.title}</h1>
           <ul class="detail__meta">
-            <li><b>点赞</b><span class="detail__likes">❤️ {formatLikes(video.likes)}</span></li>
-            <li><b>作者</b><span>{video.author_name ?? '未知'}</span></li>
+            <li><b>收藏</b><span class="detail__collects">⭐ {formatCount(video.collects)}</span></li>
+            <li><b>点赞</b><span class="detail__likes">❤️ {formatCount(video.likes)}</span></li>
+            <li>
+              <b>作者</b>
+              <span class="detail__author">
+                {video.author_avatar_url && (
+                  <img
+                    class="detail__author-avatar"
+                    src={video.author_avatar_url}
+                    alt={video.author_name ?? '作者头像'}
+                    loading="lazy"
+                    decoding="async"
+                    width="24"
+                    height="24"
+                  />
+                )}
+                <span>{video.author_name ?? '未知'}</span>
+              </span>
+            </li>
             <li><b>发布时间</b><span>{formatDate(video.publish_time)}</span></li>
             <li><b>来源</b><span>{video.source ?? '未知'}</span></li>
           </ul>

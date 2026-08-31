@@ -1,7 +1,8 @@
 import { TIERS, type Tier } from './types';
 
-// 点赞数格式化（PRD §4.1 / §7 / §8 示例：230W、230.5W、120W）
-export function formatLikes(n: number): string {
+// 大数字格式化（PRD §4.1 / §7 / §8 示例：230W、230.5W、120W）。
+// formatCount 是通用别名；formatLikes 保留兼容既有调用（点赞/收藏/其他计数通用）。
+export function formatCount(n: number): string {
   if (!n || n < 10_000) {
     return n.toLocaleString('en-US');
   }
@@ -11,11 +12,13 @@ export function formatLikes(n: number): string {
   return (Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1)) + 'W';
 }
 
-// 根据点赞数返回命中的最高档位（用于详情页标签/相关推荐排序）
-export function tierOf(likes: number): Tier | null {
+export const formatLikes = formatCount;
+
+// 根据给定的热度数值（默认收藏数）返回命中的最高档位（用于详情页标签 / 相关推荐排序）
+export function tierOf(count: number): Tier | null {
   let matched: Tier | null = null;
   for (const t of TIERS) {
-    if (likes >= t.min) matched = t;
+    if (count >= t.min) matched = t;
   }
   return matched;
 }

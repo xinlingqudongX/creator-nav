@@ -6,29 +6,30 @@ export interface Video {
   title: string | null;
   author_name: string | null;
   author_id: string | null;
+  author_avatar_url: string | null;
   cover_url: string | null;
   video_url: string;
   likes: number;
+  collects: number;
   publish_time: number | null; // unix 秒
   collected_time: number | null; // unix 秒
   created_at: number;
   updated_at: number;
 }
 
-// 热度档位（PRD §3.2 / §4.1 / §9）
+// 热度档位（PRD §3.2 / §4.1 / §9）—— 基于收藏数
 export interface Tier {
-  key: string; // 路由片段，如 20w
-  label: string; // 导航文案，如 20W+
-  min: number; // 最低点赞
+  key: string; // 路由片段，如 1w
+  label: string; // 导航文案，如 1W+
+  min: number; // 最低收藏数
   title: string; // SEO 标题
 }
 
 export const TIERS: Tier[] = [
-  { key: '20w', label: '20W+', min: 200_000, title: '20万+点赞热门短视频' },
-  { key: '50w', label: '50W+', min: 500_000, title: '50万+点赞热门短视频' },
-  { key: '100w', label: '100W+', min: 1_000_000, title: '100万+点赞热门短视频' },
-  { key: '500w', label: '500W+', min: 5_000_000, title: '500万+点赞热门短视频' },
-  { key: '1000w', label: '1000W+', min: 10_000_000, title: '1000万+点赞热门短视频' },
+  { key: '1w', label: '1W+', min: 10_000, title: '1万+收藏热门短视频' },
+  { key: '2w', label: '2W+', min: 20_000, title: '2万+收藏热门短视频' },
+  { key: '3w', label: '3W+', min: 30_000, title: '3万+收藏热门短视频' },
+  { key: '5w', label: '5W+', min: 50_000, title: '5万+收藏热门短视频' },
 ];
 
 // 顶部导航项（PRD §4.1 / §9）

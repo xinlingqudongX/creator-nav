@@ -50,7 +50,7 @@ const restJson = hasMore
           var idx = 0;
           var BATCH = 30;
 
-          function fmtLikes(n) {
+          function fmtCount(n) {
             n = n || 0;
             if (n < 10000) return n.toLocaleString('en-US');
             var w = n / 10000;
@@ -80,9 +80,13 @@ const restJson = hasMore
               fb.setAttribute('aria-hidden', 'true');
               cover.appendChild(fb);
             }
+            var collects = document.createElement('span');
+            collects.className = 'video-card__collects';
+            collects.textContent = '⭐ ' + fmtCount(v.collects);
+            cover.appendChild(collects);
             var likes = document.createElement('span');
             likes.className = 'video-card__likes';
-            likes.textContent = '❤️ ' + fmtLikes(v.likes);
+            likes.textContent = '❤️ ' + fmtCount(v.likes);
             cover.appendChild(likes);
             var body = document.createElement('div');
             body.className = 'video-card__body';
@@ -91,7 +95,20 @@ const restJson = hasMore
             h3.textContent = v.title || '无标题';
             var p = document.createElement('p');
             p.className = 'video-card__author';
-            p.textContent = '作者 · ' + (v.author_name || '未知');
+            if (v.author_avatar_url) {
+              var av = document.createElement('img');
+              av.className = 'video-card__author-avatar';
+              av.src = v.author_avatar_url;
+              av.alt = v.author_name || '作者头像';
+              av.loading = 'lazy';
+              av.decoding = 'async';
+              av.width = 20;
+              av.height = 20;
+              p.appendChild(av);
+            }
+            var an = document.createElement('span');
+            an.textContent = '作者 · ' + (v.author_name || '未知');
+            p.appendChild(an);
             body.appendChild(h3);
             body.appendChild(p);
             a.appendChild(cover);
