@@ -1,9 +1,15 @@
-# Cloudflare Pages + D1 配置
-# 文档：https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+# Cloudflare Workers + D1 配置
+# 站点：Astro 7 + @astrojs/cloudflare v14 —— 部署目标为 Workers（不再是 Pages）。
+# 构建产物：dist/client（静态资源，经 ASSETS 绑定命中）+ dist/server（SSR Worker，动态路由回落）。
+# 文档：https://docs.astro.build/en/guides/integrations-guide/cloudflare/
 
 name = "dating-nav"
-pages_build_output_dir = "dist"
 compatibility_date = "2025-08-05"
+
+# 静态资源与 SSR Worker 共存：命中文件走 assets，未命中路由回落 Worker 按需渲染。
+[assets]
+directory = "./dist/client"
+binding = "ASSETS"
 
 # D1 数据库绑定（PRD §9, §41）
 # 导入命令统一使用绑定名 DATING_DB：

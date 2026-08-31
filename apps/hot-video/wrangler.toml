@@ -1,15 +1,20 @@
-# Cloudflare Pages + D1 配置
-# 文档：https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+# Cloudflare Workers + D1 配置
+# 站点：Astro 7 + @astrojs/cloudflare v14 —— 部署目标为 Workers（不再是 Pages）。
+# 构建产物：dist/client（静态资源，经 ASSETS 绑定命中）+ dist/server（SSR Worker，动态路由回落）。
+# 文档：https://docs.astro.build/en/guides/integrations-guide/cloudflare/
 
 name = "hot-video"
-pages_build_output_dir = "dist"
 compatibility_date = "2025-08-05"
+
+# 静态资源与 SSR Worker 共存：命中文件走 assets，未命中路由回落 Worker 按需渲染。
+[assets]
+directory = "./dist/client"
+binding = "ASSETS"
 
 # D1 数据库绑定（PRD §15-17, §22-23, §39）
 # 导入命令统一使用绑定名 VIDEO_DB：
 #   本地测试：wrangler d1 execute VIDEO_DB --local  --file=schema.sql
 #   生产环境：wrangler d1 execute VIDEO_DB --remote --file=schema.sql
-# 部署前：npx wrangler d1 create hot-video 并填写下方 database_id
 [[d1_databases]]
 binding = "VIDEO_DB"
 database_name = "hot-video"
@@ -17,5 +22,5 @@ database_id = "ff8107e2-1457-4e22-8330-34fa26fc5be3"
 migrations_dir = "migrations"
 
 # 部署命令：
-#   pnpm deploy        构建并部署（默认分支）
-#   pnpm deploy:prod   构建并部署到生产分支（main）
+#   pnpm deploy        构建并部署（Workers 预览/默认环境）
+#   pnpm deploy:prod   构建并部署到生产

@@ -4,12 +4,12 @@
 
 ## 结构
 
-- `apps/hot-video/` — 爆款短视频导航站（Astro + Cloudflare Pages + D1 `VIDEO_DB`）
-- `apps/dating-nav/` — 相亲信息导航站（Astro + Cloudflare Pages + D1 `DATING_DB`）
+- `apps/hot-video/` — 爆款短视频导航站（Astro + Cloudflare Workers + D1 `VIDEO_DB`）
+- `apps/dating-nav/` — 相亲信息导航站（Astro + Cloudflare Workers + D1 `DATING_DB`）
 - `packages/ui/` — 共享 UI 包 `@creator-nav/ui`（Layout / Nav / Footer / 全局 CSS / SEO 工具）
 - `packages/db-source/` — 数据源连接器 `@creator-nav/db-source`（TypeORM + better-sqlite3 直读红绳库，同步导入 D1）
 
-各站独立 Cloudflare Pages 项目、独立 D1 数据库，互不共享数据。
+各站独立 Cloudflare Workers 项目、独立 D1 数据库，互不共享数据。
 
 ## 通用开发约定
 
@@ -33,6 +33,20 @@ pnpm deploy:hot      # = pnpm --filter hot-video deploy:prod
 pnpm deploy:dating   # = pnpm --filter dating-nav deploy:prod
 ```
 
+部署目标为 **Cloudflare Workers**（`@astrojs/cloudflare` v14 已移除 Pages 支持）：
+`astro build && wrangler deploy -c dist/server/wrangler.json`。构建产物
+`dist/client`（静态资源，经 `ASSETS` 绑定命中）+ `dist/server/entry.mjs`（SSR Worker，
+动态路由回落）。各站 `wrangler.toml` 需含 `[assets] directory="./dist/client"` +
+`binding="ASSETS"`。
+
+两个坑：
+
+- **不要**在 `wrangler.toml` 里写 `pages_build_output_dir`——它会让 wrangler 把项目判定为
+  Pages，进而报 `The name 'ASSETS' is reserved in Pages projects`。这是从 Pages 迁来的首要改动。
+- 自定义域名（`hot.solong.dpdns.org` / `dating.solong.dpdns.org`）原挂在旧 Pages 项目下，
+  切 Workers 后须去 Cloudflare 后台手动解绑并改挂到对应 Workers 项目（首次 deploy 会新建 Worker，
+  得到全新的 `*.workers.dev` 地址，域名不自动迁移）。
+
 ## 共享包 @creator-nav/ui
 
 - 站点通过 `"@creator-nav/ui": "workspace:*"` 引用。
@@ -52,7 +66,7 @@ pnpm deploy:dating   # = pnpm --filter dating-nav deploy:prod
 
 - dating-nav：红绳 `user_profiles`（画像表）→ `dating_profiles`；已入选画像的作品
   `user_posts` → `dating_posts`（profile_id 由 SQL 内标量子查询解析）
-- hot-video：红绳 `user_posts` LEFT JOIN `videos`（封面）→ `videos`
+- hot-video：红绳 `user_posts` → `videos`（红绳 `videos` 表当前已不存在，数据以 `user_posts` 为准，封面暂缺）
 
 ```
 pnpm sync:redstring                 # 两站：读库 → 筛选 → 生成幂等 import.sql → wrangler --remote 导入
