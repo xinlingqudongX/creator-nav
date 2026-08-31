@@ -30,7 +30,7 @@ function orderColOf(order: VideoQuery['order']): 'collects' | 'likes' | 'publish
 
 export interface VideoStats {
   total: number;
-  byTier: { key: string; label: string; min: number; count: number }[];
+  byTier: { key: string; label: string; min: number; max: number | null; count: number }[];
   todayNew: number;
 }
 
@@ -169,7 +169,19 @@ export async function getStats(): Promise<VideoStats> {
           key: t.key,
           label: t.label,
           min: t.min,
-          count: (await db.prepare('SELECT COUNT(*) AS c FROM videos WHERE collects >= ?').bind(t.min).first<{ c: number }>())?.c ?? 0,
+          max: t.max,
+          count:
+            (
+              t.max === null
+                ? await db
+                    .prepare('SELECT COUNT(*) AS c FROM videos WHERE collects >= ?')
+                    .bind(t.min)
+                    .first<{ c: number }>()
+                : await db
+                    .prepare('SELECT COUNT(*) AS c FROM videos WHERE collects >= ? AND collects < ?')
+                    .bind(t.min, t.max)
+                    .first<{ c: number }>()
+            )?.c ?? 0,
         }))
       );
       const todayNew = (await db.prepare('SELECT COUNT(*) AS c FROM videos WHERE created_at >= ?').bind(startOfToday).first<{ c: number }>())?.c ?? 0;
@@ -182,7 +194,18 @@ export async function getStats(): Promise<VideoStats> {
   const list = fallbackData as unknown as Video[];
   return {
     total: list.length,
-    byTier: TIERS.map((t) => ({ key: t.key, label: t.label, min: t.min, count: list.filter((v) => (v.collects ?? 0) >= t.min).length })),
+    byTier: TIERS.map((t) => ({
+      key: t.key,
+      label: t.label,
+      min: t.min,
+      max: t.max,
+      count: list.filter((v) => {
+        const n = v.collects ?? 0;
+        if (n < t.min) return false;
+        if (t.max !== null && n >= t.max) return false;
+        return true;
+      }).length,
+    })),
     todayNew: list.filter((v) => (v.created_at ?? 0) >= startOfToday).length,
   };
 }

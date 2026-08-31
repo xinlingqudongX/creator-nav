@@ -4,7 +4,7 @@ import VideoGrid from '../components/VideoGrid.astro';
 import { getVideos } from '../lib/videos';
 import { TIERS } from '../lib/types';
 
-// 热度聚合页（PRD §5）：/1w /2w /3w /5w —— 按收藏数分档
+// 热度聚合页（PRD §5）：/1w /5w /10w /15w /20w —— 半开区间 [min, max)，最高档无上界
 const key = Astro.params.tier ?? '';
 const tier = TIERS.find((t) => t.key === key);
 
@@ -12,10 +12,16 @@ if (!tier) {
   Astro.response.status = 404;
 }
 
-const videos = tier ? await getVideos({ minCollects: tier.min, limit: 200 }) : [];
+const videos = tier
+  ? await getVideos({
+      minCollects: tier.min,
+      maxCollects: tier.max ?? undefined,
+      limit: 200,
+    })
+  : [];
 const title = tier ? `${tier.title} - Hot Video` : '页面不存在 - Hot Video';
 const description = tier
-  ? `发现${tier.title}的高收藏短视频，按收藏数排序，持续更新。点击封面跳转原平台观看。`
+  ? `发现${tier.title}的高收藏短视频，收藏区间 ${tier.range}，按收藏数从高到低排序，持续更新。点击封面跳转原平台观看。`
   : '页面不存在';
 ---
 
@@ -24,7 +30,9 @@ const description = tier
     <Layout title={title} description={description} path={`/${tier.key}`}>
       <div class="page-head">
         <h1>{tier.title}</h1>
-        <p>共 {videos.length} 个视频 · 收藏 ≥ {tier.min.toLocaleString('en-US')} · 从高到低</p>
+        <p>
+          共 {videos.length} 个视频 · 收藏 {tier.range} · 从高到低
+        </p>
       </div>
       <VideoGrid videos={videos} emptyText="该收藏区间暂无视频，换一个档位看看～" />
     </Layout>

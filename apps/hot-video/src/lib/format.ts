@@ -14,13 +14,12 @@ export function formatCount(n: number): string {
 
 export const formatLikes = formatCount;
 
-// 根据给定的热度数值（默认收藏数）返回命中的最高档位（用于详情页标签 / 相关推荐排序）
+// 按收藏数返回命中的档位（半开区间 [min, max)，最高档无上界；小于最低阈值返回 null）
 export function tierOf(count: number): Tier | null {
-  let matched: Tier | null = null;
   for (const t of TIERS) {
-    if (count >= t.min) matched = t;
+    if (count >= t.min && (t.max === null || count < t.max)) return t;
   }
-  return matched;
+  return null;
 }
 
 // 友好日期（PRD §7 示例：2026-08-20）
