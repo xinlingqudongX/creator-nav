@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import VideoGrid from '../../components/VideoGrid.astro';
+import { getVideoById, getVideos } from '../../lib/videos';
+import { formatLikes, formatDate } from '../../lib/format';
+
+// 单视频页（PRD §7）：/video/:id
+const idParam = Astro.params.id ?? '';
+const id = Number(idParam);
+const valid = /^\d+$/.test(idParam);
+
+const video = valid ? await getVideoById(id) : null;
+
+if (!video) Astro.response.status = 404;
+
+// 相关推荐：排除自身，按点赞降序取前 6（PRD §7.1）
+const related = video ? await getVideos({ excludeId: video.id, order: 'likes', limit: 6 }) : [];
+
+const title = video ? `${video.title} - Hot Video` : '视频不存在 - Hot Video';
+const description = video
+  ? `${video.title}（作者：${video.author_name ?? '未知'}），点赞 ${formatLikes(video.likes)}。点击查看原视频。`
+  : '视频不存在';
+---
+
+{
+  video ? (
+    <Layout title={title} description={description} path={`/video/${video.id}`} ogImage={video.cover_url} ogType="video">
+      <div class="detail">
+        <div class="detail__cover">
+          {video.cover_url && <img src={video.cover_url} alt={video.title ?? '视频封面'} width="360" height="480" />}
+        </div>
+        <div>
+          <h1 class="detail__title">{video.title}</h1>
+          <ul class="detail__meta">
+            <li><b>点赞</b><span class="detail__likes">❤️ {formatLikes(video.likes)}</span></li>
+            <li><b>作者</b><span>{video.author_name ?? '未知'}</span></li>
+            <li><b>发布时间</b><span>{formatDate(video.publish_time)}</span></li>
+            <li><b>来源</b><span>{video.source ?? '未知'}</span></li>
+          </ul>
+          <a class="btn-primary" href={video.video_url} target="_blank" rel="noopener noreferrer">
+            查看原视频 ↗
+          </a>
+        </div>
+      </div>
+
+      <h2 class="section-title">相关推荐</h2>
+      <VideoGrid videos={related} emptyText="暂无相关推荐" />
+    </Layout>
+  ) : (
+    <Layout title={title} description={description}>
+      <div class="empty">视频不存在或已下架</div>
+    </Layout>
+  )
+}

@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DatingCard from '../components/DatingCard.astro';
+import { queryProfiles, getStats } from '../lib/dating';
+import { REGION_SLUGS, AGE_OPTIONS, GENDER_OPTIONS, RELATION_OPTIONS } from '../lib/regions';
+import { SITE } from '../lib/site';
+
+const stats = await getStats({});
+const { profiles: worth } = await queryProfiles({}, { limit: 6 });
+const { profiles: latestRaw } = await queryProfiles({}, { limit: 12 });
+const latest = latestRaw.slice().sort((a, b) => (b.updated_at ?? 0) - (a.updated_at ?? 0)).slice(0, 8);
+
+const title = '相亲信息导航 — 发现公开相亲信息，判断近期相亲意愿';
+const description =
+  '按地区、年龄、性别筛选公开相亲信息，识别近期相亲意愿与活跃状态，快速找到值得查看的内容并跳转原平台沟通。';
+---
+
+<Layout title={title} description={description} path="/">
+  <section class="hero">
+    <h1 class="hero__title">你想找什么？</h1>
+    <p class="hero__sub">告诉网站你的条件，我们帮你筛、先告诉你哪些值得看、再告诉你为什么。</p>
+    <form class="filter" action="/dating" method="get">
+      <div class="filter__field">
+        <label for="f-region">地区</label>
+        <select id="f-region" name="region">
+          <option value="">不限</option>
+          {Object.entries(REGION_SLUGS).map(([slug, name]) => (
+            <option value={slug}>{name}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter__field">
+        <label for="f-age">年龄</label>
+        <select id="f-age" name="age">
+          <option value="">不限</option>
+          {AGE_OPTIONS.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      <div class="filter__field">
+        <label for="f-gender">性别</label>
+        <select id="f-gender" name="gender">
+          <option value="">不限</option>
+          {GENDER_OPTIONS.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      <div class="filter__field">
+        <label for="f-rel">关系目标</label>
+        <select id="f-rel" name="relation">
+          <option value="">不限</option>
+          {RELATION_OPTIONS.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select>
+      </div>
+      <button type="submit" class="btn-primary filter__btn">开始寻找</button>
+    </form>
+  </section>
+
+  <div class="stat-row">
+    <span class="stat-chip">共收录 <b>{stats.total}</b> 条</span>
+    <span class="stat-chip">🔥 意愿较强 <b>{stats.intentStrong}</b> 条</span>
+    <span class="stat-chip">🆕 今日新增 <b>{stats.newToday}</b> 条</span>
+    <span class="stat-chip">🔄 持续活跃 <b>{stats.active}</b> 条</span>
+  </div>
+
+  <div class="section-head">
+    <h2>今日值得关注</h2>
+    <span class="muted">近期意愿明确、持续活跃，值得优先看</span>
+  </div>
+  <div class="dating-grid">
+    {worth.map((p) => <DatingCard profile={p} showWhy={true} />)}
+  </div>
+
+  <div class="section-head">
+    <h2>最新相亲信息</h2>
+    <span class="muted">按更新时间排序</span>
+  </div>
+  <div class="dating-grid">
+    {latest.map((p) => <DatingCard profile={p} />)}
+  </div>
+</Layout>

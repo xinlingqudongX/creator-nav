@@ -1,0 +1,98 @@
+---
+// 两站通用页面骨架：<head> SEO + 顶部导航 + 主体 + 页脚。
+// 业务相关项（品牌、导航、页脚文案、主题）由调用方通过 props 注入，保持行为可定制。
+import '../styles/base.css';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { buildCanonical, buildOgImage } from '../lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 主题：hot-video 用 'hot'，dating-nav 用 'dating' */
+  theme: 'hot' | 'dating';
+  /** og:site_name / 品牌名 */
+  siteName: string;
+  brandMark: string;
+  /** 品牌名中 <em> 之前的部分（如 "HOT "） */
+  brandName: string;
+  /** 品牌名中被强调的部分（如 "VIDEO"） */
+  brandAccent: string;
+  navItems: { label: string; href: string }[];
+  footerLinks: { label: string; href: string }[];
+  footerText: string;
+  /** canonical / og:url 路径，默认取当前路径 */
+  path?: string;
+  ogImage?: string | null;
+  /** og:type，默认 website */
+  ogType?: string;
+}
+
+const {
+  title,
+  description,
+  theme,
+  siteName,
+  brandMark,
+  brandName,
+  brandAccent,
+  navItems,
+  footerLinks,
+  footerText,
+  ogImage,
+  ogType = 'website',
+} = Astro.props;
+
+const base = Astro.site ?? Astro.url.origin;
+const canonical = buildCanonical(Astro.props.path ?? Astro.url.pathname, base);
+const ogUrl = canonical;
+const ogImageAbs = buildOgImage(ogImage, base);
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme={theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- 基础 SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={ogUrl} />
+    {ogImageAbs && <meta property="og:image" content={ogImageAbs} />}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageAbs && <meta name="twitter:image" content={ogImageAbs} />}
+
+    <slot name="head" />
+  </head>
+  <body>
+    <SiteNav
+      brandMark={brandMark}
+      brandName={brandName}
+      brandAccent={brandAccent}
+      navItems={navItems}
+      currentPath={currentPath}
+    />
+
+    <main class="container">
+      <slot />
+    </main>
+
+    <SiteFooter footerLinks={footerLinks} footerText={footerText} />
+  </body>
+</html>

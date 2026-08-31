@@ -1,0 +1,124 @@
+---
+import type { Video } from '../lib/types';
+import VideoCard from './VideoCard.astro';
+
+interface Props {
+  videos: Video[];
+  emptyText?: string;
+  // 首屏 SSR 渲染的卡片数；其余预载到 JSON，滚动时本地渲染（0 次 API）。
+  initial?: number;
+}
+
+const { videos, emptyText = '暂无视频', initial = 50 } = Astro.props;
+
+const hasMore = videos.length > initial;
+const initialVideos = videos.slice(0, initial);
+// 预载数据：转义 < 规避 </script> 提前闭合 application/json 块
+const restJson = hasMore
+  ? JSON.stringify(videos.slice(initial)).replace(/</g, '\\u003c')
+  : '[]';
+---
+
+{
+  videos.length === 0 ? (
+    <div class="empty">{emptyText}</div>
+  ) : (
+    <div class="grid" id="hv-grid">
+      {initialVideos.map((v) => (
+        <VideoCard video={v} />
+      ))}
+    </div>
+  )
+}
+
+{
+  hasMore && (
+    <>
+      <div id="hv-sentinel" class="hv-sentinel" aria-hidden="true">
+        <span class="hv-sentinel__spinner" />
+        加载更多…
+      </div>
+      <script type="application/json" id="hv-rest" set:html={restJson}></script>
+      <script is:inline>
+        (function () {
+          var grid = document.getElementById('hv-grid');
+          var sentinel = document.getElementById('hv-sentinel');
+          var restEl = document.getElementById('hv-rest');
+          if (!grid || !sentinel || !restEl) return;
+          var rest = [];
+          try { rest = JSON.parse(restEl.textContent || '[]'); } catch (e) { rest = []; }
+          var idx = 0;
+          var BATCH = 30;
+
+          function fmtLikes(n) {
+            n = n || 0;
+            if (n < 10000) return n.toLocaleString('en-US');
+            var w = n / 10000;
+            var r = Math.round(w * 10) / 10;
+            return (Number.isInteger(r) ? r.toFixed(0) : r.toFixed(1)) + 'W';
+          }
+
+          function card(v) {
+            var a = document.createElement('a');
+            a.className = 'video-card';
+            a.href = '/video/' + v.id;
+            a.title = v.title || '视频';
+            var cover = document.createElement('div');
+            cover.className = 'video-card__cover';
+            if (v.cover_url) {
+              var img = document.createElement('img');
+              img.src = v.cover_url;
+              img.alt = v.title || '视频封面';
+              img.loading = 'lazy';
+              img.decoding = 'async';
+              img.width = 300;
+              img.height = 400;
+              cover.appendChild(img);
+            } else {
+              var fb = document.createElement('div');
+              fb.className = 'video-card__cover-fallback';
+              fb.setAttribute('aria-hidden', 'true');
+              cover.appendChild(fb);
+            }
+            var likes = document.createElement('span');
+            likes.className = 'video-card__likes';
+            likes.textContent = '❤️ ' + fmtLikes(v.likes);
+            cover.appendChild(likes);
+            var body = document.createElement('div');
+            body.className = 'video-card__body';
+            var h3 = document.createElement('h3');
+            h3.className = 'video-card__title';
+            h3.textContent = v.title || '无标题';
+            var p = document.createElement('p');
+            p.className = 'video-card__author';
+            p.textContent = '作者 · ' + (v.author_name || '未知');
+            body.appendChild(h3);
+            body.appendChild(p);
+            a.appendChild(cover);
+            a.appendChild(body);
+            return a;
+          }
+
+          function loadMore() {
+            if (idx >= rest.length) return;
+            var batch = rest.slice(idx, idx + BATCH);
+            idx += BATCH;
+            var frag = document.createDocumentFragment();
+            for (var i = 0; i < batch.length; i++) frag.appendChild(card(batch[i]));
+            grid.appendChild(frag);
+            if (idx >= rest.length) {
+              if (observer) observer.disconnect();
+              if (sentinel) sentinel.remove();
+            }
+          }
+
+          if (!('IntersectionObserver' in window)) { loadMore(); return; }
+          var observer = new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting) loadMore();
+          }, { rootMargin: '600px' });
+          observer.observe(sentinel);
+        })();
+      </script>
+    </>
+  )
+}

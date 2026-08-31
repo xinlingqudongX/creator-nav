@@ -1,0 +1,31 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '联系我们 - Hot Video';
+const description =
+  'Hot Video 联系方式：一般咨询、隐私相关、版权与侵权处理入口，以及关于视频观看与商务合作的说明。';
+---
+
+<DocLayout title={title} description={description} path="/contact">
+  <h2>联系方式</h2>
+  <div class="doc-contact">
+    <div class="doc-contact__row"><b>一般咨询</b><span><a href={`mailto:${SITE.emails.contact}`}>{SITE.emails.contact}</a></span></div>
+    <div class="doc-contact__row"><b>隐私相关</b><span><a href={`mailto:${SITE.emails.privacy}`}>{SITE.emails.privacy}</a></span></div>
+    <div class="doc-contact__row"><b>版权 / 侵权</b><span><a href={`mailto:${SITE.emails.copyright}`}>{SITE.emails.copyright}</a>（详见 <a href="/copyright">版权与侵权处理</a>）</span></div>
+    <div class="doc-contact__row"><b>运营主体</b><span>{SITE.operator}</span></div>
+  </div>
+
+  <h2>侵权与内容处理</h2>
+  <p>
+    若您认为本站展示的内容侵犯合法权益，请按 <a href="/copyright">版权与侵权处理</a> 页说明提交请求，以便我们及时处理。
+  </p>
+
+  <h2>关于视频</h2>
+  <p>
+    本站不托管、不播放、不下载任何视频。如需观看或下载，请通过视频卡片跳转至原始发布平台。
+  </p>
+
+  <h2>商务合作</h2>
+  <p>商务合作请发送邮件至 <a href={`mailto:${SITE.emails.contact}`}>{SITE.emails.contact}</a>，我们会在收到后回复。</p>
+</DocLayout>

@@ -1,0 +1,76 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DatingCard from '../../components/DatingCard.astro';
+import { queryProfiles, getStats, regionBreakdown, thresholdFor } from '../../lib/dating';
+import { isValidRegion, regionName } from '../../lib/regions';
+
+const region = Astro.params.region!;
+const valid = isValidRegion(region);
+const name = regionName(region) ?? '';
+
+const { profiles, total } = valid ? await queryProfiles({ region }, { limit: 60 }) : { profiles: [], total: 0 };
+const stats = valid ? await getStats({ region }) : { total: 0, intentStrong: 0, newToday: 0, active: 0 };
+const bd = valid ? await regionBreakdown(region) : { ages: [], genders: [] };
+
+// 单维度页：低于 SEO 阈值不生成（PRD §30）
+const ok = valid && total >= thresholdFor(1);
+if (valid && !ok) Astro.response.status = 404;
+
+const title = `${name}相亲信息`;
+const description = `本页面整理近期公开发布的${name}相亲相关信息，当前收录 ${total} 条。识别相亲意愿与活跃状态，帮助快速发现值得查看的内容。`;
+---
+
+{
+  !valid || !ok ? (
+    <Layout title="页面未生成" description="暂无足够数据生成该聚合页面。" path={`/dating/${region}`}>
+      <div class="not-found">
+        <h1>该条件下的信息暂不足</h1>
+        <p>当前公开数据量未达到生成独立页面的阈值。可返回 <a href="/dating">相亲信息</a> 浏览全部，或稍后重试。</p>
+      </div>
+    </Layout>
+  ) : (
+    <Layout title={title} description={description} path={`/dating/${region}`}>
+      <div class="page-head">
+        <h1>{title}</h1>
+        <p>当前公开信息：{total} 条</p>
+      </div>
+
+      <div class="stat-row">
+        <span class="stat-chip">🔥 意愿较强 <b>{stats.intentStrong}</b> 条</span>
+        <span class="stat-chip">🆕 今日新增 <b>{stats.newToday}</b> 条</span>
+        <span class="stat-chip">🔄 持续活跃 <b>{stats.active}</b> 条</span>
+      </div>
+
+      <div class="section-head"><h2>按年龄</h2></div>
+      <div class="region-links">
+        {
+          bd.ages
+            .filter((a) => a.count >= thresholdFor(2))
+            .map((a) => (
+              <a class="region-link" href={`/dating/${region}/${a.slug}`}>
+                {a.label} <span>{a.count}</span>
+              </a>
+            ))
+        }
+      </div>
+
+      <div class="section-head"><h2>按性别</h2></div>
+      <div class="region-links">
+        {
+          bd.genders
+            .filter((g) => g.count >= thresholdFor(2))
+            .map((g) => (
+              <a class="region-link" href={`/dating/${region}/${g.slug}`}>
+                {g.label} <span>{g.count}</span>
+              </a>
+            ))
+        }
+      </div>
+
+      <div class="section-head"><h2>信息列表</h2></div>
+      <div class="dating-grid">
+        {profiles.map((p) => <DatingCard profile={p} showWhy={true} />)}
+      </div>
+    </Layout>
+  )
+}

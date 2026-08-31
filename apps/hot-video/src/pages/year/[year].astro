@@ -1,0 +1,35 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import VideoGrid from '../../components/VideoGrid.astro';
+import { getVideos } from '../../lib/videos';
+
+// 年度聚合页（PRD §6.3）：/2026
+const yearParam = Astro.params.year ?? '';
+const year = Number(yearParam);
+const valid = /^\d{4}$/.test(yearParam);
+
+if (!valid) Astro.response.status = 404;
+
+const videos = valid ? await getVideos({ year, order: 'likes', limit: 200 }) : [];
+
+const title = valid ? `${year}年热门短视频 - Hot Video` : '页面不存在 - Hot Video';
+const description = valid
+  ? `收录 ${year} 年发布的高赞短视频，按点赞数排序，持续更新。点击跳转原平台观看。`
+  : '页面不存在';
+---
+
+{
+  valid ? (
+    <Layout title={title} description={description} path={`/${year}`}>
+      <div class="page-head">
+        <h1>{year}年热门短视频</h1>
+        <p>共 {videos.length} 个视频</p>
+      </div>
+      <VideoGrid videos={videos} emptyText={`${year}年暂无视频`} />
+    </Layout>
+  ) : (
+    <Layout title={title} description={description}>
+      <div class="empty">页面不存在</div>
+    </Layout>
+  )
+}

@@ -1,0 +1,57 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import DatingCard from '../../../../components/DatingCard.astro';
+import { queryProfiles, getStats, thresholdFor } from '../../../../lib/dating';
+import { isValidRegion, regionName, parseAgeSlug, isValidGender, genderLabel } from '../../../../lib/regions';
+
+const region = Astro.params.region!;
+const age = Astro.params.age!;
+const gender = Astro.params.gender!;
+const validRegion = isValidRegion(region);
+const ageFilter = parseAgeSlug(age);
+const validGender = isValidGender(gender);
+const valid = validRegion && !!ageFilter && validGender;
+const name = regionName(region) ?? '';
+const ageLabel = ageFilter?.label ?? '';
+const gLabel = genderLabel(gender) ?? '';
+
+const { profiles, total } = valid
+  ? await queryProfiles({ region, age, gender }, { limit: 60 })
+  : { profiles: [], total: 0 };
+const stats = valid
+  ? await getStats({ region, age, gender })
+  : { total: 0, intentStrong: 0, newToday: 0, active: 0 };
+
+// 三维度组合页：低于组合阈值(5)不生成（PRD §30）
+const ok = valid && total >= thresholdFor(3);
+if (valid && !ok) Astro.response.status = 404;
+
+const title = `${name}${ageLabel}${gLabel}相亲信息`;
+const description = `本页面整理近期公开发布的${name}${ageLabel}${gLabel}相亲相关信息，当前收录 ${total} 条，识别相亲意愿与活跃状态。`;
+---
+
+{
+  !valid || !ok ? (
+    <Layout title="页面未生成" description="暂无足够数据生成该聚合页面。" path={`/dating/${region}/${age}/${gender}`}>
+      <div class="not-found">
+        <h1>该条件下的信息暂不足</h1>
+        <p>当前公开数据量未达到生成独立页面的阈值。可返回 <a href={`/dating/${region}`}>{name}相亲信息</a> 或 <a href="/dating">全部相亲信息</a>。</p>
+      </div>
+    </Layout>
+  ) : (
+    <Layout title={title} description={description} path={`/dating/${region}/${age}/${gender}`}>
+      <div class="page-head">
+        <h1>{title}</h1>
+        <p>当前公开信息：{total} 条</p>
+      </div>
+      <div class="stat-row">
+        <span class="stat-chip">🔥 意愿较强 <b>{stats.intentStrong}</b> 条</span>
+        <span class="stat-chip">🆕 今日新增 <b>{stats.newToday}</b> 条</span>
+        <span class="stat-chip">🔄 持续活跃 <b>{stats.active}</b> 条</span>
+      </div>
+      <div class="dating-grid">
+        {profiles.map((p) => <DatingCard profile={p} showWhy={true} />)}
+      </div>
+    </Layout>
+  )
+}

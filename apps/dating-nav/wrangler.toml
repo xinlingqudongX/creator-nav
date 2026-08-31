@@ -1,0 +1,21 @@
+# Cloudflare Pages + D1 配置
+# 文档：https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+
+name = "dating-nav"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-08-05"
+
+# D1 数据库绑定（PRD §9, §41）
+# 导入命令统一使用绑定名 DATING_DB：
+#   本地测试：wrangler d1 execute DATING_DB --local  --file=migrations/0001_init.sql
+#   生产环境：wrangler d1 execute DATING_DB --remote --file=import.sql
+# 部署前：npx wrangler d1 create dating-nav 并填写下方 database_id
+[[d1_databases]]
+binding = "DATING_DB"
+database_name = "dating-nav"
+database_id = "ce20917f-f107-43b0-a03a-0148578638bc"
+migrations_dir = "migrations"
+
+# 部署命令：
+#   pnpm deploy        构建并部署（默认分支）
+#   pnpm deploy:prod   构建并部署到生产分支（main）

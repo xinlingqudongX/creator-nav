@@ -1,0 +1,36 @@
+---
+interface Props {
+  brandMark: string;
+  brandName: string;
+  brandAccent: string;
+  navItems: { label: string; href: string }[];
+  currentPath: string;
+}
+
+const { brandMark, brandName, brandAccent, navItems, currentPath } = Astro.props;
+
+const isActive = (href: string) =>
+  href === '/' ? currentPath === '/' : currentPath === href || currentPath.startsWith(href + '/');
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/">
+      <span class="brand__mark">{brandMark}</span>
+      <span class="brand__text">{brandName}<em>{brandAccent}</em></span>
+    </a>
+    <nav class="nav" aria-label="主导航">
+      {
+        navItems.map((item) => (
+          <a
+            class={`nav__link${isActive(item.href) ? ' is-active' : ''}`}
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>

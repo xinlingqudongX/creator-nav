@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抖音 iframe 播放测试</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0 0 16px;
+      color: #333;
+    }
+    .video-wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 9 / 16;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .note {
+      max-width: 480px;
+      margin: 16px auto 0;
+      padding: 12px;
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #795548;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>抖音 iframe 播放测试</h1>
+
+  <div class="video-wrapper">
+    <iframe
+      src="https://v.douyin.com/n4UD5zCkHP4/"
+      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+      allowfullscreen
+      sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups">
+    </iframe>
+  </div>
+
+  <div class="note">
+    说明：抖音对第三方站点 iframe 嵌入有严格限制（X-Frame-Options / CSP），<br>
+    若视频无法播放，通常是因为抖音服务器拒绝在非官方域名下被嵌入。
+  </div>
+</body>
+</html>

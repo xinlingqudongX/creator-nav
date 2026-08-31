@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# 本站点不提供后台与 API 路径；全部为静态/SSR 内容页。
+# 禁止抓取任何可能存在的内部管理或预览路径（如有）。
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://dating.solong.dpdns.org/sitemap.xml

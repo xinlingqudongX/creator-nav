@@ -1,0 +1,19 @@
+{
+  "name": "creator-nav",
+  "private": true,
+  "description": "多站点 monorepo：爆款短视频导航 (hot-video) + 相亲信息导航 (dating-nav)，共享 UI 包 (@creator-nav/ui)",
+  "scripts": {
+    "dev:hot": "pnpm --filter hot-video dev",
+    "dev:dating": "pnpm --filter dating-nav dev",
+    "build": "pnpm -r build",
+    "deploy:hot": "pnpm --filter hot-video deploy:prod",
+    "deploy:dating": "pnpm --filter dating-nav deploy:prod",
+    "db:init:dating:remote": "pnpm --filter dating-nav db:init:remote",
+    "db:import:dating:remote": "pnpm --filter dating-nav db:import:remote",
+    "sync:redstring": "node --experimental-strip-types packages/db-source/src/cli.ts",
+    "sync:dating": "pnpm run sync:redstring --site dating",
+    "sync:hot": "pnpm run sync:redstring --site hot",
+    "sync:hot:collects": "pnpm run sync:redstring --site hot --min-collects 10000",
+    "publish:hot:collects": "pnpm run sync:hot:collects && pnpm --filter hot-video deploy:prod"
+  }
+}

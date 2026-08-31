@@ -1,0 +1,19 @@
+---
+import Layout from '../layouts/Layout.astro';
+import VideoGrid from '../components/VideoGrid.astro';
+import { getVideos, startOfTodaySec } from '../lib/videos';
+
+// 今日热门（PRD §6.1）：publish_time 在今日 00:00 之后
+const videos = await getVideos({ after: startOfTodaySec(), order: 'likes', limit: 200 });
+
+const title = '今日热门短视频 - Hot Video';
+const description = '今日最新最火的高赞短视频，按点赞数排序。发现当下爆款，点击跳转原平台观看。';
+---
+
+<Layout title={title} description={description} path="/today">
+  <div class="page-head">
+    <h1>今日热门短视频</h1>
+    <p>今天发布的高赞视频 · 共 {videos.length} 个</p>
+  </div>
+  <VideoGrid videos={videos} emptyText="今日还没有新视频，看看其他档位吧～" />
+</Layout>

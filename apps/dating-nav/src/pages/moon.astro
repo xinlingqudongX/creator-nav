@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getProfileById } from '../lib/dating';
+import { mapProfileToPerson, type Person } from '../lib/person';
+import { personCardHTML } from '../lib/moon-card';
+
+// 月老连线页（PRD §15.3）：A 固定，B 由客户端从人物池随机选取并可持续切换。
+const aIdRaw = Astro.url.searchParams.get('a');
+const aId = aIdRaw ? Number(aIdRaw) : NaN;
+const aProfile = Number.isInteger(aId) ? await getProfileById(aId) : null;
+const aPerson: Person | null = aProfile ? mapProfileToPerson(aProfile) : null;
+if (!aPerson) Astro.response.status = 404;
+
+const title = aPerson ? `给 ${aPerson.name ?? 'TA'} 找个对象` : '月老连线';
+const description =
+  '你是月老：看到两个人觉得合适，就为他们牵一条红线。连线只保存在你的浏览器本地，不上传服务器。';
+---
+
+<Layout title={title} description={description} path="/moon">
+  {
+    !aPerson ? (
+      <div class="not-found">
+        <h1>还没有指定人物</h1>
+        <p>先从 <a href="/dating">相亲信息</a> 里挑一个人，点「💞 给 TA 找个对象」。</p>
+      </div>
+    ) : (
+      <section class="moon">
+        <header class="moon__head">
+          <h1>给 {aPerson.name ?? 'TA'} 找个对象</h1>
+          <p class="muted">
+            你是月老。不断换一个候选人，觉得合适就牵红线。连线只存在你的浏览器里，平台不做任何撮合判断。
+          </p>
+        </header>
+
+        <div class="moon__stage" id="moon-stage">
+          <div class="moon__slot" id="moon-a" set:html={personCardHTML(aPerson)}></div>
+          <canvas class="moon__canvas" id="moon-canvas" aria-hidden="true"></canvas>
+          <div class="moon__slot" id="moon-b">
+            <div class="moon-person moon-person--empty">正在为你找候选人…</div>
+          </div>
+        </div>
+
+        <div class="moon__controls">
+          <button class="btn-moon" id="moon-tie" type="button">牵红线</button>
+          <button class="btn-ghost" id="moon-next" type="button">换一个</button>
+          <span class="moon__count" id="moon-count">已牵 0 条</span>
+          <button class="btn-ghost moon__export" id="moon-export" type="button">导出我的红线</button>
+        </div>
+
+        <p class="moon__hint" id="moon-hint" role="status" aria-live="polite"></p>
+      </section>
+    )
+  }
+</Layout>
+
+<script>
+  import '../scripts/moon.ts';
+</script>

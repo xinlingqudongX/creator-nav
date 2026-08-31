@@ -1,0 +1,55 @@
+---
+// 相亲信息卡片（PRD §19–§22）：展示公开基础信息 + 意愿状态 + 活跃状态 + 为什么值得看。
+import type { DatingProfile } from '../lib/dating';
+import { intentLevel, intentHeadline, daysSince } from '../lib/scoring';
+import { ageText, humanizeGender } from '../lib/regions';
+import { formatRelative } from '@creator-nav/ui/lib/format';
+
+interface Props {
+  profile: DatingProfile;
+  /** 是否展开“为什么值得看”解释项 */
+  showWhy?: boolean;
+}
+
+const { profile: p, showWhy = false } = Astro.props;
+
+const lvl = intentLevel(p.intent_score);
+const freshDays = daysSince(p.updated_at);
+const active = (p.activity_score ?? 0) >= 50;
+const rel = formatRelative(p.updated_at);
+const meta = [ageText(p.birth_year), humanizeGender(p.gender), p.residence_region]
+  .filter(Boolean)
+  .join(' · ');
+
+const why = intentLevel(p.intent_score).key !== 'weak'
+  ? [
+      (lvl.key === 'very_strong' || lvl.key === 'strong') ? '明确表达找对象意愿' : '信息与相亲需求相关',
+      freshDays <= 7 ? (freshDays <= 3 ? '刚刚发布' : '近期发布') : null,
+      active ? '近期持续活跃' : null,
+    ].filter(Boolean)
+  : [];
+---
+
+<div class="dating-card">
+  <div class="dating-card__media">
+    <span class="dating-card__emoji">{lvl.emoji}</span>
+  </div>
+  <div class="dating-card__body">
+    <p class="dating-card__intent">{lvl.emoji} {intentHeadline(p.intent_score)}</p>
+    <p class="dating-card__meta">{meta}</p>
+    <p class="dating-card__sub">🕐 {rel}更新{freshDays <= 7 ? ' · 🔥 新鲜' : ''}{active ? ' · 🔄 持续活跃' : ''}</p>
+    {
+      showWhy && why.length > 0 && (
+        <ul class="dating-card__why">
+          {why.map((w) => (
+            <li>✓ {w}</li>
+          ))}
+        </ul>
+      )
+    }
+    <div class="dating-card__actions">
+      <a class="dating-card__cta" href={`/profile/${p.id}`}>查看公开信息 →</a>
+      <a class="dating-card__moon" href={`/moon?a=${p.id}`}>💞 给 TA 找个对象</a>
+    </div>
+  </div>
+</div>

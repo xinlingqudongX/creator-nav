@@ -1,0 +1,33 @@
+{
+  "name": "dating-nav",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "相亲信息导航站 MVP — Astro + Cloudflare Pages(D1) 公开相亲信息发现与意愿识别导航",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "deploy": "astro build && wrangler pages deploy",
+    "deploy:prod": "astro build && wrangler pages deploy --branch=master",
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami",
+    "db:init:local": "wrangler d1 execute DATING_DB --local --file=migrations/0001_init.sql",
+    "db:init:remote": "wrangler d1 execute DATING_DB --remote --file=migrations/0001_init.sql",
+    "db:convert": "node --experimental-strip-types scripts/json-to-sql.ts",
+    "db:import:local": "wrangler d1 execute DATING_DB --local --file=import.sql",
+    "db:import:remote": "wrangler d1 execute DATING_DB --remote --file=import.sql"
+  },
+  "dependencies": {
+    "astro": "^7.1.6",
+    "@astrojs/cloudflare": "14.0.0",
+    "@creator-nav/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^4.125.0"
+  }
+}

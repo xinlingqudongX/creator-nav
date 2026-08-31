@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getProfileById, getPostsByProfile } from '../../lib/dating';
+import { intentLevel, intentHeadline, daysSince } from '../../lib/scoring';
+import { ageText, humanizeGender } from '../../lib/regions';
+import { formatDate, formatRelative } from '@creator-nav/ui/lib/format';
+
+const id = Number(Astro.params.id);
+const profile = Number.isInteger(id) ? await getProfileById(id) : null;
+if (!profile) Astro.response.status = 404;
+
+const posts = profile ? await getPostsByProfile(profile.id) : [];
+const lvl = intentLevel(profile?.intent_score ?? 0);
+const freshDays = daysSince(profile?.updated_at ?? null);
+const active = (profile?.activity_score ?? 0) >= 50;
+
+const meta = profile
+  ? [ageText(profile.birth_year), humanizeGender(profile.gender), profile.residence_region]
+      .filter(Boolean)
+      .join(' · ')
+  : '';
+const title = profile?.nickname ? `${profile.nickname}的公开相亲信息` : '公开相亲信息';
+const description = profile ? `${meta} · ${intentHeadline(profile.intent_score)} · 近期公开相亲动态时间线。` : '公开相亲信息主页。';
+---
+
+{
+  !profile ? (
+    <Layout title="信息不存在" description="未找到该公开主页。" path={`/profile/${Astro.params.id}`}>
+      <div class="not-found">
+        <h1>信息不存在</h1>
+        <p>该公开主页可能已删除或失效。<a href="/dating">返回相亲信息</a>。</p>
+      </div>
+    </Layout>
+  ) : (
+    <Layout title={title} description={description} path={`/profile/${id}`}>
+      <div class="page-head">
+        <div class="detail-head">
+          <h1>{profile.nickname ?? '公开用户'}</h1>
+          <span class="tag">{lvl.emoji} {intentHeadline(profile.intent_score)}</span>
+        </div>
+        <p class="muted">{meta} · 来源：{profile.source} · {formatRelative(profile.updated_at)}更新</p>
+      </div>
+
+      <div class="detail-meta">
+        {profile.birth_year && <span class="tag">{ageText(profile.birth_year)}</span>}
+        {profile.gender && <span class="tag">{humanizeGender(profile.gender)}</span>}
+        {profile.residence_region && <span class="tag">{profile.residence_region}</span>}
+        {active && <span class="tag">🔄 近期持续活跃</span>}
+      </div>
+
+      <h2 class="section-title">近期公开动态</h2>
+      {
+        posts.length > 0 ? (
+          <ul class="timeline">
+            {posts.map((p) => (
+              <li class="timeline__item">
+                <div class="timeline__date">{formatDate(p.published_at)}</div>
+                <div class="timeline__title">
+                  <a href={`/post/${p.id}`}>{p.title ?? '公开内容'}</a>
+                </div>
+                <p class="timeline__summary">{p.content_summary}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="empty">暂无可展示的公开动态。</div>
+        )
+      }
+
+      {profile.profile_url && (
+        <div class="cta-row">
+          <a class="btn-primary" href={profile.profile_url} target="_blank" rel="noopener noreferrer">查看原平台主页 →</a>
+        </div>
+      )}
+
+      <div class="cta-row">
+        <a class="btn-moon" href={`/moon?a=${profile.id}`}>💞 给 TA 找个对象</a>
+        <span class="muted">你是月老：觉得 TA 和谁合适，就牵一条红线。</span>
+      </div>
+
+      <p class="muted">本站仅展示公开信息并做导航，不评价个人、不提供联系方式、不提供站内聊天。</p>
+    </Layout>
+  )
+}

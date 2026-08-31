@@ -1,0 +1,8 @@
+/* 热主题（爆款短视频站 hot-video） */
+:root[data-theme="hot"] {
+  --color-primary: #ff2d55;
+  --color-primary-hover: #e11d48;
+  --color-tag-bg: #fff0f3;
+  --color-tag-text: #ff2d55;
+  --shadow-card-hover: 0 8px 24px rgba(255, 45, 85, 0.12);
+}

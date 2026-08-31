@@ -1,0 +1,30 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '关于我们';
+const description = '相亲信息导航是一个公开相亲信息发现与意愿识别平台：帮用户快速找到近期真正值得查看的公开相亲信息。';
+---
+
+<DocLayout title={title} description={description} path="/about">
+  <div class="doc__body">
+    <p>相亲信息导航是一个面向相亲需求用户的<strong>公开信息发现与导航平台</strong>。我们不收集、不托管原平台内容，也不提供站内聊天与撮合。</p>
+
+    <h2>我们做什么</h2>
+    <p>我们把公开相亲信息进行结构化、去重、意愿识别、活跃度与新鲜度判断，并按用户条件做匹配与推荐排序，最终引导用户跳转到原平台查看与沟通。</p>
+
+    <h2>我们不做什么</h2>
+    <ul>
+      <li>不评价“人”——不给人颜值、收入、房产、学历等打分（PRD §4.1）。</li>
+      <li>不提供站内聊天、私信与联系方式聚合。</li>
+      <li>不通过照片、视频、评论、GPS 推断年龄或常住地。</li>
+      <li>不展示手机号、微信、QQ、邮箱等私人联系方式（PRD §6.3）。</li>
+    </ul>
+
+    <h2>我们的价值</h2>
+    <p>普通导航只是把帖子搬到另一个地方。我们进一步回答三个问题：<strong>为什么看这个、为什么现在看、为什么适合我</strong>，并解释推荐原因，帮用户快速完成一次有效发现。</p>
+
+    <h2>运营主体</h2>
+    <p>运营主体：{SITE.operator}（{SITE.operatorAddress}）。本页信息为占位，上线前将替换为真实主体。</p>
+  </div>
+</DocLayout>

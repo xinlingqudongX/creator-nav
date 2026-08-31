@@ -1,0 +1,33 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '隐私政策';
+const description = '本平台遵循数据最小化原则：不收集私人联系方式，仅展示与相亲导航直接相关的公开信息，并提供删除与投诉通道。';
+---
+
+<DocLayout title={title} description={description} path="/privacy">
+  <div class="doc__body">
+    <p>本平台高度重视个人信息保护，遵循<strong>能不保存就不保存、能不展示就不展示</strong>的数据最小化原则（PRD §47）。</p>
+
+    <h2>我们处理的信息</h2>
+    <p>仅处理与相亲导航直接相关的<strong>公开信息</strong>：地区、年龄/出生年份、性别、IP 属地、明确公开的常驻地区、发布时间、原帖链接、公开互动数据，以及与相亲需求直接相关的公开内容摘要。</p>
+
+    <h2>我们不收集的信息</h2>
+    <ul>
+      <li>手机号、微信、QQ、邮箱等私人联系方式。</li>
+      <li>身份证、银行卡、精确家庭住址与精确工作地址。</li>
+      <li>任何通过照片、视频、评论、GPS 推断出的私密信息。</li>
+    </ul>
+
+    <h2>删除申请</h2>
+    <p>若你认为是相关公开信息的主体，且不希望继续被展示，可通过下方邮箱提交删除申请。我们将在收到后进行验证与人工审核，并在合理期限内<strong>删除 / 修改 / 保留</strong>处理结果并留存记录（PRD §46）。</p>
+    <div class="doc-contact">
+      <div class="doc-contact__row"><b>删除申请</b><span>{SITE.emails.privacy}</span></div>
+      <div class="doc-contact__row"><b>隐私投诉</b><span>{SITE.emails.privacy}</span></div>
+    </div>
+
+    <h2>反滥用</h2>
+    <p>我们限制批量导出、个人信息批量查询、姓名/联系方式搜索与无限制个人历史查询，并对访问频率进行限制与异常检测（PRD §48）。</p>
+  </div>
+</DocLayout>

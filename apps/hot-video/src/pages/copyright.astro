@@ -1,0 +1,42 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '版权与侵权处理 - Hot Video';
+const description =
+  'Hot Video 不托管原始视频；如认为本站展示的内容侵犯合法权益，可通过指定联系方式提交侵权处理请求。';
+---
+
+<DocLayout title={title} description={description} path="/copyright">
+  <h2>本站不托管原始视频</h2>
+  <p>
+    Hot Video <strong>不托管任何原始视频文件</strong>，不提供视频播放或下载。本站仅整理并展示来自第三方公开平台的视频元数据信息（标题、封面、点赞数、作者、发布时间及原视频链接）。
+  </p>
+
+  <h2>内容来源</h2>
+  <p>
+    本站展示的视频信息<strong>可能来自第三方公开平台</strong>（如抖音等），相关信息归原平台与原作者所有。
+  </p>
+
+  <h2>侵权处理</h2>
+  <p>
+    如果您是权利人或其代理人，认为本站展示的相关内容侵犯您的合法权益，可以通过下方指定联系方式提交处理请求。我们会在收到完整材料后依法处理（如移除相关展示信息）。
+  </p>
+
+  <h2>提交请求需包含的信息</h2>
+  <ol>
+    <li>权利人的身份证明（个人或主体信息）；</li>
+    <li>涉嫌侵权内容的准确链接，或足以定位该内容的说明；</li>
+    <li>权属证明或对侵权事实的说明；</li>
+    <li>您的有效联系方式（邮箱 / 地址）；</li>
+    <li>真实性声明（声明所提供信息属实，并愿承担相应责任，如适用）。</li>
+  </ol>
+
+  <h2>联系方式</h2>
+  <div class="doc-contact">
+    <div class="doc-contact__row"><b>侵权处理</b><span><a href={`mailto:${SITE.emails.copyright}`}>{SITE.emails.copyright}</a></span></div>
+    <div class="doc-contact__row"><b>一般联系</b><span><a href={`mailto:${SITE.emails.contact}`}>{SITE.emails.contact}</a></span></div>
+    <div class="doc-contact__row"><b>运营主体</b><span>{SITE.operator}</span></div>
+  </div>
+  <p>也可通过 <a href="/contact">联系我们</a> 页提交。具体法律文本上线前需根据实际运营主体与目标市场完善。</p>
+</DocLayout>

@@ -1,0 +1,102 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '隐私政策 - Hot Video';
+const description =
+  'Hot Video 隐私政策：Cookie、Google Analytics、Google AdSense、匿名访问数据的收集与使用，以及如何管理 Cookie 与联系方式。';
+
+const toc = [
+  { id: 'overview', label: '1. 概述' },
+  { id: 'collect', label: '2. 我们可能收集的信息' },
+  { id: 'cookies', label: '3. Cookie 的使用' },
+  { id: 'analytics', label: '4. Google Analytics' },
+  { id: 'adsense', label: '5. Google AdSense 与广告 Cookie' },
+  { id: 'manage', label: '6. 如何管理 Cookie' },
+  { id: 'eea', label: '7. 面向欧洲经济区（EEA）用户' },
+  { id: 'security', label: '8. 数据安全与保留' },
+  { id: 'update', label: '9. 本政策的更新' },
+  { id: 'contact', label: '10. 联系方式' },
+];
+---
+
+<DocLayout title={title} description={description} path="/privacy" toc={toc}>
+  <h2 id="overview">1. 概述</h2>
+  <p>
+    本隐私政策说明 Hot Video（以下简称“本站”）如何收集、使用与保护你在访问本站时的信息。本站为信息导航类网站，<strong>不要求注册账号</strong>，主要处理匿名化的访问数据。运营主体：{SITE.operator}。
+  </p>
+
+  <h2 id="collect">2. 我们可能收集的信息</h2>
+  <p>在您访问本站时，我们可能通过服务器日志与分析工具收集以下<strong>匿名访问数据</strong>：</p>
+  <ul>
+    <li>访问来源（Referrer）与 landing 页面</li>
+    <li>浏览器类型、语言与用户代理（User-Agent）</li>
+    <li>设备类型、屏幕分辨率</li>
+    <li>大致地理位置（国家 / 地区级别，不含精确定位）</li>
+    <li>访问页面、停留时长与点击行为（聚合统计）</li>
+    <li>IP 地址（通常仅用于安全与地区聚合，不做长期个人画像）</li>
+  </ul>
+  <p>
+    除你主动通过联系渠道提供外，本站<strong>不收集姓名、邮箱、电话等可直接识别个人身份的信息</strong>。
+  </p>
+
+  <h2 id="cookies">3. Cookie 的使用</h2>
+  <p>本站可能使用 Cookie 与类似技术（如 localStorage）以维持基本功能与改善体验，大致分为：</p>
+  <ul>
+    <li><strong>必要 Cookie</strong>：维持站点基本运行（如记录你的同意选择）。</li>
+    <li><strong>分析 Cookie</strong>：了解流量来源与页面表现，用于优化站点。</li>
+    <li><strong>广告 Cookie</strong>：由广告服务商设置，用于广告展示与频次控制。</li>
+  </ul>
+
+  <h2 id="analytics">4. Google Analytics</h2>
+  <p>
+    本站可能使用 <strong>Google Analytics</strong> 收集匿名使用数据，以了解访问情况并改进内容。Google Analytics 会使用 _ga 等 Cookie 区分访客。你可以通过
+    <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics 停用插件</a>
+    或浏览器 / 广告设置退出统计。
+  </p>
+
+  <h2 id="adsense">5. Google AdSense 与广告 Cookie</h2>
+  <p>
+    本站可能使用 <strong>Google AdSense</strong> 展示广告。Google 及其广告网络（包括 AdSense）可能使用 Cookie（如 NID、IDE 等）进行广告个性化与频次控制。你可以通过
+    <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google 广告设置</a>
+    或
+    <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">aboutads.info</a>
+    管理个性化广告偏好。
+  </p>
+
+  <h2 id="manage">6. 如何管理 Cookie</h2>
+  <p>你可以通过以下方式管理 Cookie：</p>
+  <ul>
+    <li>在浏览器设置中清除、阻止或限制 Cookie（各浏览器路径不同，可在“设置 → 隐私 / 站点数据”中找到）。</li>
+    <li>通过上述 Google 广告设置退出个性化广告。</li>
+    <li>若本站提供同意管理（见下条），可随时更改你的同意选择。</li>
+  </ul>
+  <p>请注意：阻止必要 Cookie 可能影响部分功能，但核心导航内容仍可正常访问。</p>
+
+  <h2 id="eea">7. 面向欧洲经济区（EEA）用户</h2>
+  <div class="doc-note">
+    <strong>重要：</strong>若本站面向欧洲经济区（EEA）等适用地区用户，我们<strong>不会</strong>在用户首次访问时默认直接加载全部广告与追踪脚本，而是会先通过
+    <strong>Consent Management Platform（CMP）</strong> 取得用户对 Cookie 与广告个性化的明确同意；用户可随时撤回同意。
+  </div>
+  <p>
+    我们将根据实际启用的 Google 广告产品与用户所在地区，接入相应的 CMP（如 Google 推荐的 Funding Choices / IAB TCF 框架），对“必要 / 分析 / 广告”Cookie 分别征求同意。具体同意流程以你所在地区实际展示的提示为准。
+  </p>
+
+  <h2 id="security">8. 数据安全与保留</h2>
+  <ul>
+    <li>本站全程使用 HTTPS 加密传输。</li>
+    <li>匿名访问数据仅用于运营分析与安全防护，我们<strong>不会出售你的个人数据</strong>。</li>
+    <li>日志类数据保留期限以最小化必要为原则，过期后定期清理。</li>
+  </ul>
+
+  <h2 id="update">9. 本政策的更新</h2>
+  <p>
+    本政策可能随功能与合规要求更新。任何重大变更将在此页面发布，并标注“最后更新”日期。建议你定期查阅。正式上线时，本政策应根据实际使用的 Google 服务与所在地法律进行适配完善。
+  </p>
+
+  <h2 id="contact">10. 联系方式</h2>
+  <div class="doc-contact">
+    <div class="doc-contact__row"><b>隐私相关</b><span><a href={`mailto:${SITE.emails.privacy}`}>{SITE.emails.privacy}</a></span></div>
+    <div class="doc-contact__row"><b>运营主体</b><span>{SITE.operator}</span></div>
+  </div>
+</DocLayout>

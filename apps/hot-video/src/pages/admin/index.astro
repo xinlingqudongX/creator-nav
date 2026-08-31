@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStats } from '../../lib/videos';
+import { TIERS } from '../../lib/types';
+
+// 后台管理（PRD §29）：数据统计（数据导入改走 Wrangler，见 §39，不在公网暴露导入接口）
+const stats = await getStats();
+const title = '后台管理 - Hot Video';
+const description = 'Hot Video 后台：数据统计与运营概览。';
+---
+
+<Layout title={title} description={description} path="/admin">
+  <div class="page-head">
+    <h1>后台管理</h1>
+    <p>数据统计与运营概览</p>
+  </div>
+
+  <section class="admin-card">
+    <h2>数据统计</h2>
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat__num">{stats.total}</div>
+        <div class="stat__label">视频总数</div>
+      </div>
+      {
+        stats.byTier.map((t) => (
+          <div class="stat">
+            <div class="stat__num">{t.count}</div>
+            <div class="stat__label">{t.label} 点赞</div>
+          </div>
+        ))
+      }
+      <div class="stat">
+        <div class="stat__num">{stats.todayNew}</div>
+        <div class="stat__label">今日新增</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-card">
+    <h2>数据导入</h2>
+    <p style="color:var(--color-text-muted);font-size:var(--font-sm);margin-top:0">
+      为安全起见，数据导入不通过公网接口，统一走 Wrangler 直连 D1（PRD §39）。流程：
+    </p>
+    <ol style="margin:0;padding-left:var(--space-5);color:var(--color-text-muted);font-size:var(--font-sm);line-height:1.9">
+      <li>建表：<code>pnpm db:init:remote</code>（首次，或 <code>pnpm db:init:local</code> 本地验证）</li>
+      <li>转换：<code>pnpm db:convert</code> 将 <code>src/data/videos.json</code> 转为 <code>import.sql</code></li>
+      <li>导入：<code>pnpm db:import</code> 写入生产 D1（<code>pnpm db:import:local</code> 写本地库）</li>
+    </ol>
+    <p style="color:var(--color-text-muted);font-size:var(--font-xs);margin-bottom:0">
+      唯一键 <code>(source, source_id)</code> 冲突时自动 UPSERT，重复提交仅刷新元数据、保留首次入库时间。
+    </p>
+  </section>
+</Layout>

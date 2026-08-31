@@ -1,0 +1,36 @@
+---
+import type { Video } from '../lib/types';
+import { formatLikes } from '../lib/format';
+
+interface Props {
+  video: Video;
+}
+
+const { video } = Astro.props;
+const likes = formatLikes(video.likes ?? 0);
+const href = `/video/${video.id}`;
+---
+
+<a class="video-card" href={href} title={video.title ?? '视频'}>
+  <div class="video-card__cover">
+    {
+      video.cover_url ? (
+        <img
+          src={video.cover_url}
+          alt={video.title ?? '视频封面'}
+          loading="lazy"
+          decoding="async"
+          width="300"
+          height="400"
+        />
+      ) : (
+        <div class="video-card__cover-fallback" aria-hidden="true" />
+      )
+    }
+    <span class="video-card__likes">❤️ {likes}</span>
+  </div>
+  <div class="video-card__body">
+    <h3 class="video-card__title">{video.title ?? '无标题'}</h3>
+    <p class="video-card__author">作者 · {video.author_name ?? '未知'}</p>
+  </div>
+</a>

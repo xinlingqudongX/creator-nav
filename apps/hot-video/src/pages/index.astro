@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import VideoGrid from '../components/VideoGrid.astro';
+import { getVideos } from '../lib/videos';
+
+// 首页：当前热门视频入口，默认按点赞降序（PRD §4.1）
+// 首页（PRD §4.1）：SSR 30 张首屏 + 页面内预载至 200 条，滚动时本地渲染，0 次 API（§23.2）
+const videos = await getVideos({ order: 'likes', limit: 200 });
+
+const title = '热门短视频 - Hot Video';
+const description =
+  '发现热门高赞短视频，汇集20万、50万、100万及以上点赞的热门视频，持续更新。点击跳转原平台观看。';
+---
+
+<Layout title={title} description={description} path="/">
+  <div class="page-head">
+    <h1>热门短视频</h1>
+    <p>当下最火的高赞视频 · 按点赞数从高到低 · 共 {videos.length} 个</p>
+  </div>
+  <VideoGrid videos={videos} initial={30} emptyText="还没有视频，去后台导入一些收藏吧～" />
+</Layout>

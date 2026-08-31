@@ -1,0 +1,31 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '联系我们';
+const description = '如需删除申请、举报纠错、侵权处理或商务合作，可通过以下渠道联系我们。';
+---
+
+<DocLayout title={title} description={description} path="/contact">
+  <div class="doc__body">
+    <p>我们提供以下联系渠道。请按诉求选择对应邮箱，以便更快处理。</p>
+
+    <div class="doc-contact">
+      <div class="doc-contact__row"><b>删除申请</b><span>{SITE.emails.privacy}</span></div>
+      <div class="doc-contact__row"><b>隐私投诉</b><span>{SITE.emails.privacy}</span></div>
+      <div class="doc-contact__row"><b>侵权处理</b><span>{SITE.emails.copyright}</span></div>
+      <div class="doc-contact__row"><b>举报 / 纠错</b><span>{SITE.emails.copyright}</span></div>
+      <div class="doc-contact__row"><b>商务合作</b><span>{SITE.emails.contact}</span></div>
+    </div>
+
+    <h2>处理时效说明</h2>
+    <ul>
+      <li>删除申请与隐私投诉：收到后进行验证与人工审核，合理期限内处理并留存记录。</li>
+      <li>侵权处理：核验材料后采取删除、屏蔽或标注等措施。</li>
+      <li>一般咨询：我们将在工作日内回复。</li>
+    </ul>
+
+    <h2>运营主体</h2>
+    <p>运营主体：{SITE.operator}（{SITE.operatorAddress}）。以上联系方式为占位，上线前将替换为可用邮箱。</p>
+  </div>
+</DocLayout>

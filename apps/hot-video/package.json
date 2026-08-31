@@ -1,0 +1,34 @@
+{
+  "name": "hot-video",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "爆款短视频导航站 MVP — 基于 Astro + Cloudflare Pages(D1) 的高热度短视频发现与导航站",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "seed": "node scripts/seed.mjs",
+    "deploy": "astro build && wrangler pages deploy",
+    "deploy:prod": "astro build && wrangler pages deploy --branch=master",
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami",
+    "db:init:local": "wrangler d1 execute VIDEO_DB --local --file=schema.sql",
+    "db:init:remote": "wrangler d1 execute VIDEO_DB --remote --file=schema.sql",
+    "db:convert": "node --experimental-strip-types scripts/json-to-sql.ts",
+    "db:import:local": "wrangler d1 execute VIDEO_DB --local --file=import.sql",
+    "db:import": "wrangler d1 execute VIDEO_DB --remote --file=import.sql"
+  },
+  "dependencies": {
+    "astro": "^7.1.6",
+    "@astrojs/cloudflare": "14.0.0",
+    "@creator-nav/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^4.125.0"
+  }
+}

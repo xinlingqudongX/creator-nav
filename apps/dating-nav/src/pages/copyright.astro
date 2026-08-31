@@ -1,0 +1,30 @@
+---
+import DocLayout from '../layouts/DocLayout.astro';
+import { SITE } from '../lib/site';
+
+const title = '版权与侵权';
+const description = '本站内容均来自原平台公开信息，版权归原作者所有；如涉及侵权，可通过下方渠道提交处理申请。';
+---
+
+<DocLayout title={title} description={description} path="/copyright">
+  <div class="doc__body">
+    <h2>版权归属</h2>
+    <p>本站展示的标题、摘要、互动数据等，均来自各原平台的<strong>公开内容</strong>，其著作权与相关权利归原作者与原平台所有。本站仅做索引与导航，不对原内容主张任何权利。</p>
+
+    <h2>侵权处理</h2>
+    <p>若你认为是相关内容的著作权人、或被展示信息的主体，且认为展示行为侵犯了你的合法权益，可通过下方邮箱提交侵权处理申请，并附上：</p>
+    <ul>
+      <li>能证明你权利的材料；</li>
+      <li>涉嫌侵权内容的链接或标识；</li>
+      <li>你的联系方式与处理诉求。</li>
+    </ul>
+    <p>我们收到后将进行核验，并在合理期限内采取删除、屏蔽或标注等措施。</p>
+    <div class="doc-contact">
+      <div class="doc-contact__row"><b>侵权处理</b><span>{SITE.emails.copyright}</span></div>
+      <div class="doc-contact__row"><b>删除申请</b><span>{SITE.emails.privacy}</span></div>
+    </div>
+
+    <h2>举报与纠错</h2>
+    <p>如发现内容不准确、已失效或存在违规，欢迎通过上述邮箱进行<strong>举报 / 纠错</strong>，帮助我们提升信息质量（PRD §45）。</p>
+  </div>
+</DocLayout>

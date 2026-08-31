@@ -1,0 +1,61 @@
+---
+// 第二级动态段同时承载「年龄」与「性别」两种语义（PRD §27–§29）。
+// Astro 不允许同一深度出现两个独立动态路由，故用单一 dispatcher 按段内容判别：
+//   - 命中年龄 slug（如 95 / 90s）→ 年龄页
+//   - 命中性别 slug（female / male）→ 性别页
+//   - 其他 → 404
+import Layout from '../../../layouts/Layout.astro';
+import DatingCard from '../../../components/DatingCard.astro';
+import { queryProfiles, getStats, thresholdFor } from '../../../lib/dating';
+import { isValidRegion, regionName, parseAgeSlug, isValidGender, genderLabel } from '../../../lib/regions';
+
+const region = Astro.params.region!;
+const segment = Astro.params.segment!;
+
+const validRegion = isValidRegion(region);
+const ageFilter = parseAgeSlug(segment);
+const genderValid = isValidGender(segment);
+const name = regionName(region) ?? '';
+
+const isAge = validRegion && !!ageFilter;
+const isGender = validRegion && genderValid;
+const valid = isAge || isGender;
+
+const filters = isAge ? { region, age: segment } : isGender ? { region, gender: segment } : {};
+const { profiles, total } = valid ? await queryProfiles(filters, { limit: 60 }) : { profiles: [], total: 0 };
+const stats = valid ? await getStats(filters) : { total: 0, intentStrong: 0, newToday: 0, active: 0 };
+
+// 双维度页：低于组合阈值(5)不生成（PRD §30）
+const ok = valid && total >= thresholdFor(2);
+if (valid && !ok) Astro.response.status = 404;
+
+const label = ageFilter?.label ?? (genderValid ? genderLabel(segment) ?? '' : '');
+const title = `${name}${label}相亲信息`;
+const description = `本页面整理近期公开发布的${name}${label}相亲相关信息，当前收录 ${total} 条，识别相亲意愿与活跃状态。`;
+---
+
+{
+  !valid || !ok ? (
+    <Layout title="页面未生成" description="暂无足够数据生成该聚合页面。" path={`/dating/${region}/${segment}`}>
+      <div class="not-found">
+        <h1>该条件下的信息暂不足</h1>
+        <p>当前公开数据量未达到生成独立页面的阈值，或链接无效。可返回 <a href={`/dating/${region}`}>{name}相亲信息</a> 或 <a href="/dating">全部相亲信息</a>。</p>
+      </div>
+    </Layout>
+  ) : (
+    <Layout title={title} description={description} path={`/dating/${region}/${segment}`}>
+      <div class="page-head">
+        <h1>{title}</h1>
+        <p>当前公开信息：{total} 条</p>
+      </div>
+      <div class="stat-row">
+        <span class="stat-chip">🔥 意愿较强 <b>{stats.intentStrong}</b> 条</span>
+        <span class="stat-chip">🆕 今日新增 <b>{stats.newToday}</b> 条</span>
+        <span class="stat-chip">🔄 持续活跃 <b>{stats.active}</b> 条</span>
+      </div>
+      <div class="dating-grid">
+        {profiles.map((p) => <DatingCard profile={p} showWhy={true} />)}
+      </div>
+    </Layout>
+  )
+}

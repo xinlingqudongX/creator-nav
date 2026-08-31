@@ -1,0 +1,231 @@
+/* Hot Video 站点专属样式（共享基础位于 @creator-nav/ui/styles/base.css）。
+ * 仅保留爆款短视频站特有的组件：视频网格 / 卡片 / 详情 / 无限滚动 / 后台。
+ */
+
+/* ===== 视频瀑布流网格 (PRD §8) ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.video-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.video-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(255, 45, 85, 0.3);
+}
+
+.video-card__cover {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(135deg, #ffd9e1 0%, #ffe9ef 50%, #eef1f5 100%);
+  overflow: hidden;
+}
+
+.video-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.video-card:hover .video-card__cover img {
+  transform: scale(1.05);
+}
+
+.video-card__likes {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: 2px var(--space-2);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border-radius: 999px;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.video-card__body {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.video-card__title {
+  margin: 0;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.video-card__author {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+/* ===== 无限滚动哨兵 / 加载指示 (PRD §23.2) ===== */
+.hv-sentinel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+.hv-sentinel__spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: hv-spin 0.7s linear infinite;
+}
+
+@keyframes hv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hv-sentinel__spinner {
+    animation: none;
+  }
+}
+
+/* ===== 详情页 (PRD §7) ===== */
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.detail__cover {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffd9e1, #eef1f5);
+}
+
+.detail__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail__title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.detail__meta {
+  list-style: none;
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.detail__meta li {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--font-sm);
+}
+
+.detail__meta b {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  min-width: 64px;
+}
+
+.detail__likes {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* ===== 后台 (PRD §29) ===== */
+.admin-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.admin-card h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-lg);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.stat {
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+}
+
+.stat__num {
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.stat__label {
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+textarea {
+  width: 100%;
+  min-height: 160px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-sm);
+  resize: vertical;
+}
+
+.admin-msg {
+  margin-top: var(--space-3);
+  font-size: var(--font-sm);
+}
+
+/* ===== 响应式 ===== */
+@media screen and (max-width: 720px) {
+  .detail {
+    grid-template-columns: 1fr;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-3);
+  }
+}

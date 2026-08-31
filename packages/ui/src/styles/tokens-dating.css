@@ -1,0 +1,9 @@
+/* 玫瑰粉主题（相亲信息导航站 dating-nav） */
+:root[data-theme="dating"] {
+  --color-primary: #e11d48;
+  --color-primary-hover: #be123c;
+  --color-tag-bg: #ffe4e6;
+  --color-tag-text: #e11d48;
+  --color-accent-soft: #ffe4e6;
+  --shadow-card-hover: 0 8px 24px rgba(225, 29, 72, 0.12);
+}

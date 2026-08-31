@@ -1,0 +1,46 @@
+---
+// hot-video 站点布局：委托共享 SiteLayout，注入本站的品牌 / 导航 / 页脚 / 主题。
+import SiteLayout from '@creator-nav/ui/layouts/SiteLayout.astro';
+import '../styles/global.css';
+import { NAV_ITEMS } from '../lib/types';
+
+interface Props {
+  title: string;
+  description: string;
+  /** 用于 canonical / og:url 的路径，默认取当前路径 */
+  path?: string;
+  /** Open Graph 图片（视频封面等） */
+  ogImage?: string | null;
+  /** 文章/视频页可用 'video' / 'article'，默认 'website' */
+  ogType?: string;
+}
+
+const { title, description, path, ogImage, ogType } = Astro.props;
+
+const FOOTER_LINKS = [
+  { label: '关于我们', href: '/about' },
+  { label: '隐私政策', href: '/privacy' },
+  { label: '服务条款', href: '/terms' },
+  { label: '版权与侵权', href: '/copyright' },
+  { label: '联系我们', href: '/contact' },
+];
+const year = new Date().getFullYear();
+---
+
+<SiteLayout
+  title={title}
+  description={description}
+  path={path}
+  ogImage={ogImage}
+  ogType={ogType}
+  theme="hot"
+  siteName="Hot Video"
+  brandMark="🔥"
+  brandName="HOT "
+  brandAccent="VIDEO"
+  navItems={NAV_ITEMS}
+  footerLinks={FOOTER_LINKS}
+  footerText={`© ${year} Hot Video · 发现热门高赞短视频，点击跳转原平台观看`}
+>
+  <slot />
+</SiteLayout>

@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import VideoGrid from '../components/VideoGrid.astro';
+import { getVideos } from '../lib/videos';
+import { TIERS } from '../lib/types';
+
+// 热度聚合页（PRD §5）：/20w /50w /100w /500w /1000w
+const key = Astro.params.tier ?? '';
+const tier = TIERS.find((t) => t.key === key);
+
+if (!tier) {
+  Astro.response.status = 404;
+}
+
+const videos = tier ? await getVideos({ minLikes: tier.min, limit: 200 }) : [];
+const title = tier ? `${tier.title} - Hot Video` : '页面不存在 - Hot Video';
+const description = tier
+  ? `发现${tier.title}的高赞短视频，按点赞数排序，持续更新。点击封面跳转原平台观看。`
+  : '页面不存在';
+---
+
+{
+  tier ? (
+    <Layout title={title} description={description} path={`/${tier.key}`}>
+      <div class="page-head">
+        <h1>{tier.title}</h1>
+        <p>共 {videos.length} 个视频 · 点赞 ≥ {tier.min.toLocaleString('en-US')} · 从高到低</p>
+      </div>
+      <VideoGrid videos={videos} emptyText="该热度区间暂无视频，换一个档位看看～" />
+    </Layout>
+  ) : (
+    <Layout title={title} description={description}>
+      <div class="empty">页面不存在</div>
+    </Layout>
+  )
+}

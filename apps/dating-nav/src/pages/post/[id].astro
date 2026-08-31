@@ -1,0 +1,73 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getPostById } from '../../lib/dating';
+import { intentLevel, intentHeadline, daysSince } from '../../lib/scoring';
+import { ageText, humanizeGender } from '../../lib/regions';
+import { formatDate } from '@creator-nav/ui/lib/format';
+
+const id = Number(Astro.params.id);
+const data = Number.isInteger(id) ? await getPostById(id) : null;
+if (!data) Astro.response.status = 404;
+
+const post = data?.post;
+const profile = data?.profile ?? null;
+
+const lvl = intentLevel(post?.intent_score_snapshot ?? 0);
+const freshDays = daysSince(post?.published_at ?? null);
+const active = (profile?.activity_score ?? 0) >= 50;
+const reasons: string[] = [];
+if (lvl.key !== 'weak') reasons.push('明确表达找对象意愿');
+if (freshDays <= 3) reasons.push('刚刚发布');
+else if (freshDays <= 7) reasons.push('近期发布');
+if (active) reasons.push('近期持续活跃');
+
+const meta = profile
+  ? [ageText(profile.birth_year), humanizeGender(profile.gender), profile.residence_region]
+      .filter(Boolean)
+      .join(' · ')
+  : '';
+const title = post?.title ?? '相亲信息详情';
+const description = (post?.content_summary ?? '').slice(0, 80) || '查看公开相亲信息的原文与公开主页。';
+---
+
+{
+  !data ? (
+    <Layout title="信息不存在" description="未找到该条公开信息。" path={`/post/${Astro.params.id}`}>
+      <div class="not-found">
+        <h1>信息不存在</h1>
+        <p>该条公开信息可能已删除或失效。<a href="/dating">返回相亲信息</a>。</p>
+      </div>
+    </Layout>
+  ) : (
+    <Layout title={title} description={description} path={`/post/${id}`}>
+      <div class="page-head">
+        <div class="detail-head">
+          <h1>{title}</h1>
+          <span class="tag">{lvl.emoji} {intentHeadline(post!.intent_score_snapshot)}</span>
+        </div>
+        {meta && <p class="muted">{meta}</p>}
+      </div>
+
+      {reasons.length > 0 && (
+        <>
+          <h2 class="section-title">为什么值得看？</h2>
+          <ul class="detail-why">
+            {reasons.map((r) => <li><b>✓</b> {r}</li>)}
+          </ul>
+        </>
+      )}
+
+      <div class="summary-box">
+        <p>{post!.content_summary}</p>
+        <p class="muted">发布时间：{formatDate(post!.published_at)} · 来源：{post!.source} · 点赞 {post!.likes} · 评论 {post!.comments}</p>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn-primary" href={post!.source_url} target="_blank" rel="noopener noreferrer">查看原帖 →</a>
+        {profile && <a class="btn-ghost" href={`/profile/${profile.id}`}>查看公开主页</a>}
+      </div>
+
+      <p class="muted">本站仅做信息导航，不托管原内容、不提供站内聊天。请通过原平台进一步沟通。</p>
+    </Layout>
+  )
+}

@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DatingCard from '../../components/DatingCard.astro';
+import { queryProfiles, getStats } from '../../lib/dating';
+import { isValidRegion, isValidGender, parseAgeSlug, regionName } from '../../lib/regions';
+
+const sp = Astro.url.searchParams;
+const regionRaw = sp.get('region') ?? undefined;
+const ageRaw = sp.get('age') ?? undefined;
+const genderRaw = sp.get('gender') ?? undefined;
+
+const region = regionRaw && isValidRegion(regionRaw) ? regionRaw : undefined;
+const age = ageRaw && parseAgeSlug(ageRaw) ? ageRaw : undefined;
+const gender = genderRaw && isValidGender(genderRaw) ? genderRaw : undefined;
+
+const filters = { region, age, gender };
+const { profiles, total } = await queryProfiles(filters, { limit: 60 });
+const stats = await getStats(filters);
+
+const regionLabel = region ? regionName(region) : '';
+const title = regionLabel ? `${regionLabel}相亲信息` : '相亲信息';
+const description = regionLabel
+  ? `整理近期公开发布的${regionLabel}相亲相关信息，识别相亲意愿与活跃状态，帮助快速发现值得查看的内容。`
+  : '按地区、年龄、性别筛选公开相亲信息，识别近期相亲意愿与活跃状态。';
+---
+
+<Layout title={title} description={description} path="/dating">
+  <div class="page-head">
+    <h1>{title}</h1>
+    <p>为你找到 {total} 条公开相亲信息</p>
+  </div>
+
+  <div class="stat-row">
+    <span class="stat-chip">🔥 意愿较强 <b>{stats.intentStrong}</b> 条</span>
+    <span class="stat-chip">🆕 今日新增 <b>{stats.newToday}</b> 条</span>
+    <span class="stat-chip">🔄 持续活跃 <b>{stats.active}</b> 条</span>
+  </div>
+
+  {
+    profiles.length > 0 ? (
+      <div class="dating-grid">
+        {profiles.map((p) => <DatingCard profile={p} showWhy={true} />)}
+      </div>
+    ) : (
+      <div class="empty">暂无符合条件的公开信息。可调整筛选条件后重试。</div>
+    )
+  }
+</Layout>

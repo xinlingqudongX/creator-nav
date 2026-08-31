@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# 后台管理不对外暴露
+Disallow: /admin/
+
+Sitemap: https://hot.solong.dpdns.org/sitemap.xml

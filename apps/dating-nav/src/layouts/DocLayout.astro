@@ -1,0 +1,39 @@
+---
+import Layout from './Layout.astro';
+import { SITE } from '../lib/site';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  toc?: { id: string; label: string }[];
+}
+
+const { title, description, path, toc } = Astro.props;
+---
+
+<Layout title={title} description={description} path={path}>
+  <article class="doc">
+    <header class="doc__head">
+      <h1 class="doc__title">{title.replace(/ - .*$/, '')}</h1>
+      <p class="doc__updated">最后更新：{SITE.updated}</p>
+    </header>
+
+    {
+      toc && toc.length > 0 && (
+        <nav class="doc-toc" aria-label="本页目录">
+          <p class="doc-toc__title">本页目录</p>
+          <ul>
+            {toc.map((t) => (
+              <li><a href={`#${t.id}`}>{t.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    <div class="doc__body">
+      <slot />
+    </div>
+  </article>
+</Layout>

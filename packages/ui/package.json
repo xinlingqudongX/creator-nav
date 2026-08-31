@@ -1,0 +1,18 @@
+{
+  "name": "@creator-nav/ui",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "creator-nav 多站点共享 UI 包：Layout / Nav / Footer / 全局 CSS / SEO 工具",
+  "exports": {
+    "./layouts/SiteLayout.astro": "./src/layouts/SiteLayout.astro",
+    "./components/SiteNav.astro": "./src/components/SiteNav.astro",
+    "./components/SiteFooter.astro": "./src/components/SiteFooter.astro",
+    "./styles/base.css": "./src/styles/base.css",
+    "./styles/tokens-hot.css": "./src/styles/tokens-hot.css",
+    "./styles/tokens-dating.css": "./src/styles/tokens-dating.css",
+    "./lib/seo": "./src/lib/seo.ts",
+    "./lib/format": "./src/lib/format.ts",
+    "./lib/d1": "./src/lib/d1.ts"
+  }
+}
